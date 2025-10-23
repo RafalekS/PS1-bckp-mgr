@@ -1,0 +1,114 @@
+{
+  "ConfigVersion": {
+    "version": "4.4",
+    "lastModified": "2025-10-23",
+    "description": "PowerShell Backup System Configuration Template"
+  },
+  "Statistics": {
+    "TotalBackups": 0,
+    "SuccessfulBackups": 0,
+    "FailedBackups": 0,
+    "AverageSize_MB": 0,
+    "AverageDuration_Seconds": 0,
+    "LastBackupDate": null,
+    "LastFullBackupDate": null
+  },
+  "TempPath": "C:\\Temp\\Backup",
+  "BackupVersions": 5,
+  "CompressionPresets": {
+    "_comment": "Pre-defined compression level presets",
+    "Store": 0,
+    "Fastest": 1,
+    "Fast": 3,
+    "Normal": 5,
+    "Maximum": 7,
+    "Ultra": 9
+  },
+  "Constants": {
+    "_comment": "System constants for timeouts, limits, and thresholds",
+    "RegistryExportTimeout_Seconds": 60,
+    "ProcessCleanupTimeout_Ms": 5000,
+    "PathValidationBatchSize": 10,
+    "FileCountJobTimeout_Seconds": 15,
+    "RegistryProcessTimeout_Seconds": 30,
+    "ProgressUpdateFrequency": 500
+  },
+  "GlobalExclusions": {
+    "_comment": "Paths and patterns to exclude from all backups",
+    "Folders": [
+      "*\\node_modules",
+      "*\\.git",
+      "*\\__pycache__",
+      "*\\.venv",
+      "*\\.virtualenv"
+    ],
+    "Files": [
+      "*.tmp",
+      "*.log",
+      "Thumbs.db",
+      ".DS_Store"
+    ]
+  },
+  "Logging": {
+    "LogFilePath": "log\\backup.log",
+    "Format": "Text",
+    "_FormatComment": "Options: Text or JSON",
+    "IncludeContext": false
+  },
+  "Tools": {
+    "7Zip": "C:\\Program Files\\7-Zip\\7z.exe",
+    "_7ZipComment": "Path to 7-Zip executable for compression"
+  },
+  "Destinations": {
+    "_comment": "Define backup destinations - can be local paths, network shares, or SSH",
+    "Local": "D:\\Backup",
+    "Network": "\\\\NAS\\Backup",
+    "HomeNet": {
+      "Path": "\\\\192.168.1.100\\Backup"
+    },
+    "SSH": {
+      "RemoteHost": "user@hostname",
+      "RemotePath": "/path/to/backup",
+      "SSHKeyPath": "$env:USERPROFILE\\.ssh\\id_rsa",
+      "BandwidthLimit": 0,
+      "_BandwidthLimitComment": "Bandwidth limit in Kbit/s. Set to 0 for unlimited."
+    }
+  },
+  "Notifications": {
+    "Gotify": {
+      "Enabled": false,
+      "Url": "http://your-gotify-server:port/message",
+      "TokenEncrypted": "",
+      "_TokenComment": "Use Setup-BackupCredentials.ps1 to encrypt your Gotify token"
+    }
+  },
+  "BackupTypes": {
+    "_comment": "Define backup profiles with specific items to backup",
+    "Full": [
+      "Documents",
+      "Scripts",
+      "Config"
+    ],
+    "Dev": [
+      "Code",
+      "Config"
+    ]
+  },
+  "BackupItems": {
+    "_comment": "Define what each backup item includes",
+    "Documents": [
+      "$env:USERPROFILE\\Documents\\*.docx",
+      "$env:USERPROFILE\\Documents\\Important"
+    ],
+    "Scripts": [
+      "C:\\Scripts"
+    ],
+    "Config": [
+      "$env:USERPROFILE\\.gitconfig",
+      "$env:USERPROFILE\\.bashrc"
+    ],
+    "Code": [
+      "$env:USERPROFILE\\Projects"
+    ]
+  }
+}

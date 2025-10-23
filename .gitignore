@@ -1,0 +1,86 @@
+# PowerShell Backup System - Git Ignore File
+# ==========================================
+
+# SENSITIVE FILES - NEVER COMMIT THESE
+# -------------------------------------
+# Main configuration file (contains paths, potentially encrypted tokens)
+config/bkp_cfg.json
+
+# Backup of configuration
+config/config.zip
+
+# Encrypted credentials or tokens
+*.encrypted
+*.token
+
+# SSH keys
+*.pem
+*.ppk
+id_rsa
+id_rsa.pub
+
+# GENERATED/RUNTIME FILES
+# -----------------------
+# Log files
+log/
+*.log
+
+# Database files (backup history)
+db/backup_history.db
+db/backup_history.db-journal
+db/*.db
+db/*.db-journal
+
+# Actual backup archives
+backup/
+*.zip
+*.7z
+*.tar
+*.tar.gz
+
+# Temporary files
+temp/
+tmp/
+*.tmp
+.writetest_*
+7zip_*.tmp
+
+# DEVELOPMENT/TOOLING
+# -------------------
+# Claude Code project files (user-specific)
+.claude/
+
+# PowerShell module cache
+PSGetModuleInfo.xml
+
+# IDE/Editor files
+.vscode/
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# OS FILES
+# --------
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# ALLOWED EXAMPLE/TEMPLATE FILES
+# -------------------------------
+# Include example/template config (if you create one)
+!config/bkp_cfg.example.json
+!config/bkp_cfg.template.json
+
+# Include database schema/migrations
+!db/schema.sql
+!db/migrate-*.ps1
+!db/*.md

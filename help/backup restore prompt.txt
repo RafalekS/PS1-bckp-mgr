@@ -1,0 +1,55 @@
+ok so now I need you to create additional modules for it
+
+All the files you create you will save in c:\Users\r_sta\Downloads\claude\
+
+you can use all the extensions and mcp servers you have access to while creating it
+
+filesystem
+
+windows system information
+
+context7 - if you need additional information on how to achieve something using PS or to check file structure or anything else technical
+
+PS Script Executor (headless) for this one ask me first if im ok with it
+
+You will concentrate on one module at a time
+
+You will start with a backup restore mechanism.
+
+This needs to be a very comprehensive mechanism that will ask the user which backup they want to restore (based on the DB)
+
+then they will ask the user if they want to restore the backup to the original locations or to some other folder (but with an original folder structure taken from the config file) - lets discuss this point because I need you to understand this requirement 100% 
+
+This should be first added to the backup_mgr.ps1 script and then have its own module as a separate ps1 file.
+
+it needs to be able to analyse the saved backup file check all the backed up items, locations, group them and then display on the screen for the user to specify if they want to restore all of it, some groups or individual items.
+
+For example I might want to restore just "C:\\Users\\r_sta\\OneDrive\\Documents\\PowerShell\\Microsoft.PowerShell_profile.ps1"
+
+from backupItem: PowerShell
+
+or maybe restore 5 different reg files from WinApps 
+
+or the Scripts item
+
+it needs to be fully flexible.
+
+like I said it needs an option to extract the backed up items to their original locations directly - for example restore powershell profile to "C:\\Users\\r_sta\\OneDrive\\Documents\\PowerShell\\Microsoft.PowerShell_profile.ps1" or
+
+an option to restore it to a different location (with proper folder structure) to allow user to do this manually
+
+there should also be an option for the restored .reg files to be imported after restore however this is optional as users will most likely want to review the reg files beforehand
+
+I am aware that right now the archive that is created might not be suitable for restoring files to their original locations so they way I see it we have 2 options:
+
+change the backup mechanism to log what file was archived from what location and where it is in the archive and attach that info to each backup archive
+
+or change the way archives are built so they actually contain the original folder structure (might be an issue here with paths length) - we can discuss this
+
+I have put a copy of all the scripts in 
+
+C:\Users\r_sta\Downloads\backup
+
+in case you need to make changes to existing solution
+
+please make sure you have access to everything and ask me any other questions you might have before you start
