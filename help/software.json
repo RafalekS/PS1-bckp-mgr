@@ -1,0 +1,1766 @@
+{
+  "export_version": 3,
+  "packages": [
+    {
+      "Id": "7zip",
+      "Name": "7zip",
+      "Version": "24.09",
+      "Source": "main",
+      "ManagerName": "Scoop",
+      "Updates": {
+        "UpdatesIgnored": true,
+        "IgnoredVersion": "*"
+      }
+    },
+    {
+      "Id": "7zip.7zip",
+      "Name": "7-Zip",
+      "Version": "25.01",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "9N28NW9BLHS5",
+      "Name": "GroX - G Rok Chatbot",
+      "Version": "1.2.59.0",
+      "Source": "msstore",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "9N28NW9BLHS5",
+      "Name": "Grow AI - AI Search \u0026 Chatbot",
+      "Version": "1.2.58.0",
+      "Source": "msstore",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "9NPMHXZ9H1PB",
+      "Name": "Base64: Offline \u0026 private converter",
+      "Version": "1.0.0.0",
+      "Source": "msstore",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "9NT1R1C2HH7J",
+      "Name": "ChatGPT",
+      "Version": "1.2025.258.0",
+      "Source": "msstore",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "9P6RC76MSMMJ",
+      "Name": "Prime Video for Windows",
+      "Version": "1.1.5.0",
+      "Source": "msstore",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "9WZDNCRFJ3TJ",
+      "Name": "Netflix",
+      "Version": "7.0.8.0",
+      "Source": "msstore",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "@anthropic-ai/claude-agent-sdk",
+      "Name": "Claude Agent Sdk",
+      "Version": "0.1.27",
+      "Source": "npm",
+      "ManagerName": "Npm"
+    },
+    {
+      "Id": "@anthropic-ai/claude-agent-sdk",
+      "Name": "Claude Agent Sdk",
+      "Version": "0.1.26",
+      "Source": "npm",
+      "ManagerName": "Npm"
+    },
+    {
+      "Id": "@anthropic-ai/claude-agent-sdk",
+      "Name": "Claude Agent Sdk",
+      "Version": "0.1.25",
+      "Source": "npm",
+      "ManagerName": "Npm"
+    },
+    {
+      "Id": "@anthropic-ai/claude-code",
+      "Name": "Claude Code",
+      "Version": "2.0.27",
+      "Source": "npm",
+      "ManagerName": "Npm"
+    },
+    {
+      "Id": "@anthropic-ai/claude-code",
+      "Name": "Claude Code",
+      "Version": "2.0.26",
+      "Source": "npm",
+      "ManagerName": "Npm"
+    },
+    {
+      "Id": "@anthropic-ai/dxt",
+      "Name": "Dxt",
+      "Version": "0.2.6",
+      "Source": "npm",
+      "ManagerName": "Npm"
+    },
+    {
+      "Id": "@anthropic-ai/mcpb",
+      "Name": "Mcpb",
+      "Version": "1.1.1",
+      "Source": "npm",
+      "ManagerName": "Npm"
+    },
+    {
+      "Id": "@anthropic-ai/mcpb",
+      "Name": "Mcpb",
+      "Version": "1.1.0",
+      "Source": "npm",
+      "ManagerName": "Npm"
+    },
+    {
+      "Id": "@google/clasp",
+      "Name": "Clasp",
+      "Version": "3.1.0",
+      "Source": "npm",
+      "ManagerName": "Npm"
+    },
+    {
+      "Id": "@google/clasp",
+      "Name": "Clasp",
+      "Version": "3.0.6-alpha",
+      "Source": "npm",
+      "ManagerName": "Npm"
+    },
+    {
+      "Id": "@google/gemini-cli",
+      "Name": "Gemini Cli",
+      "Version": "0.10.0",
+      "Source": "npm",
+      "ManagerName": "Npm"
+    },
+    {
+      "Id": "@leonardsellem/n8n-mcp-server",
+      "Name": "N8n Mcp Server",
+      "Version": "0.1.8",
+      "Source": "npm",
+      "ManagerName": "Npm"
+    },
+    {
+      "Id": "@modelcontextprotocol/inspector",
+      "Name": "Inspector",
+      "Version": "0.17.2",
+      "Source": "npm",
+      "ManagerName": "Npm"
+    },
+    {
+      "Id": "@openai/codex",
+      "Name": "Codex",
+      "Version": "0.49.0",
+      "Source": "npm",
+      "ManagerName": "Npm"
+    },
+    {
+      "Id": "@openai/codex",
+      "Name": "Codex",
+      "Version": "0.48.0",
+      "Source": "npm",
+      "ManagerName": "Npm"
+    },
+    {
+      "Id": "@openai/codex",
+      "Name": "Codex",
+      "Version": "0.47.0",
+      "Source": "npm",
+      "ManagerName": "Npm"
+    },
+    {
+      "Id": "@tauri-apps/cli",
+      "Name": "Cli",
+      "Version": "2.9.1",
+      "Source": "npm",
+      "ManagerName": "Npm"
+    },
+    {
+      "Id": "Amazon.WorkspacesClient",
+      "Name": "Amazon WorkSpaces",
+      "Version": "5.29.2.5628",
+      "Source": "winget",
+      "ManagerName": "Winget",
+      "Updates": {
+        "UpdatesIgnored": true,
+        "IgnoredVersion": "*"
+      }
+    },
+    {
+      "Id": "Anthropic.Claude",
+      "Name": "Claude",
+      "Version": "0.14.4",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "Anysphere.Cursor",
+      "Name": "Cursor",
+      "Version": "1.7.54",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "Anysphere.Cursor",
+      "Name": "Cursor",
+      "Version": "1.7.52",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "AutoHotkey.AutoHotkey",
+      "Name": "AutoHotkey",
+      "Version": "2.0.19",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "Brave.Brave",
+      "Name": "Brave",
+      "Version": "141.1.83.120",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "BurntSushi.ripgrep.MSVC",
+      "Name": "RipGrep MSVC",
+      "Version": "15.1.0",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "BurntSushi.ripgrep.MSVC",
+      "Name": "RipGrep MSVC",
+      "Version": "14.1.1",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "CGSecurity.TestDisk",
+      "Name": "TestDisk",
+      "Version": "7.2",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "ChocoShortcuts",
+      "Name": "ChocoShortcuts",
+      "Version": "0.4.1",
+      "Source": "community",
+      "ManagerName": "Chocolatey"
+    },
+    {
+      "Id": "Chocolatey.Chocolatey",
+      "Name": "Chocolatey",
+      "Version": "2.4.3.0",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "Chocolatey.ChocolateyGUI",
+      "Name": "Chocolatey GUI",
+      "Version": "2.1.1.0",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "ClaudeUsage",
+      "Name": "ClaudeUsage",
+      "Version": "1.1.1",
+      "Source": "PSGallery",
+      "ManagerName": "PowerShell7"
+    },
+    {
+      "Id": "Clement.bottom",
+      "Name": "bottom",
+      "Version": "0.11.1",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "CodingWondersSoftware.DISMTools.Stable",
+      "Name": "DISMTools",
+      "Version": "0.7.0.25092",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "CredentialManager",
+      "Name": "CredentialManager",
+      "Version": "2.0.0",
+      "Source": "PSGallery",
+      "ManagerName": "PowerShell7"
+    },
+    {
+      "Id": "CyberCat.ADBAppControl",
+      "Name": "ADB AppControl",
+      "Version": "1.8.6",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "Cyotek.WebCopy",
+      "Name": "Cyotek WebCopy",
+      "Version": "1.9.1.872",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "DevToys-app.DevToys",
+      "Name": "DevToys",
+      "Version": "2.0-preview.8",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "DupeGuru.DupeGuru",
+      "Name": "dupeGuru",
+      "Version": "4.3.1",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "EclipseAdoptium.Temurin.17.JRE",
+      "Name": "Eclipse Temurin JRE with Hotspot 17",
+      "Version": "17.0.16.8",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "ElementLabs.LMStudio",
+      "Name": "LM Studio",
+      "Version": "0.3.30",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "ExcelCmdlets",
+      "Name": "ExcelCmdlets",
+      "Version": "23.0.8839.1",
+      "Source": "PSGallery",
+      "ManagerName": "PowerShell7"
+    },
+    {
+      "Id": "Fastfetch-cli.Fastfetch",
+      "Name": "fastfetch",
+      "Version": "2.54.0",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "Fastfetch-cli.Fastfetch",
+      "Name": "fastfetch",
+      "Version": "2.53.0",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "Figlet",
+      "Name": "Figlet",
+      "Version": "0.1.0",
+      "Source": "PSGallery",
+      "ManagerName": "PowerShell7"
+    },
+    {
+      "Id": "Foxit.FoxitReader.Inno",
+      "Name": "Foxit PDF Reader",
+      "Version": "2025.2.0.33046",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "Ghisler.TotalCommander",
+      "Name": "Total Commander",
+      "Version": "11.56",
+      "Source": "winget",
+      "ManagerName": "Winget",
+      "Updates": {
+        "UpdatesIgnored": true,
+        "IgnoredVersion": "*"
+      }
+    },
+    {
+      "Id": "Git.Git",
+      "Name": "Git",
+      "Version": "2.51.1",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "GitHub.cli",
+      "Name": "GitHub CLI",
+      "Version": "2.81.0",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "GlavSoft.TightVNC",
+      "Name": "TightVNC",
+      "Version": "2.8.85.0",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "GoLang.Go",
+      "Name": "Go Programming Language",
+      "Version": "1.25.3",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "Google.Chrome.EXE",
+      "Name": "Google Chrome (EXE)",
+      "Version": "141.0.7390.123",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "Google.Chrome.EXE",
+      "Name": "Google Chrome (EXE)",
+      "Version": "141.0.7390.108",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "Google.CloudSDK",
+      "Name": "Google Cloud SDK",
+      "Version": "Unknown",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "Google.QuickShare",
+      "Name": "Quick Share from Google",
+      "Version": "1.0.2351.1",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "Gyan.FFmpeg",
+      "Name": "FFmpeg",
+      "Version": "8.0",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "HandBrake.HandBrake",
+      "Name": "HandBrake",
+      "Version": "1.10.2",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "HermannSchinagl.LinkShellExtension",
+      "Name": "Link Shell Extension",
+      "Version": "3.9.3.5",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "ISESteroids",
+      "Name": "ISESteroids",
+      "Version": "2.7.1.9",
+      "Source": "PSGallery",
+      "ManagerName": "PowerShell7"
+    },
+    {
+      "Id": "ImportExcel",
+      "Name": "ImportExcel",
+      "Version": "7.8.10",
+      "Source": "PSGallery",
+      "ManagerName": "PowerShell7"
+    },
+    {
+      "Id": "Insecure.Nmap",
+      "Name": "Nmap",
+      "Version": "7.80",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "Insomnia.Insomnia",
+      "Name": "Insomnia",
+      "Version": "11.6.2",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "ItchIo.Itch",
+      "Name": "itch",
+      "Version": "26.1.9",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "JernejSimoncic.Wget",
+      "Name": "Wget",
+      "Version": "1.21.4",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "JesseDuffield.lazygit",
+      "Name": "lazygit",
+      "Version": "0.55.1",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "JohnMacFarlane.Pandoc",
+      "Name": "Pandoc",
+      "Version": "3.8",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "KB2919355",
+      "Name": "KB2919355",
+      "Version": "1.0.20160915",
+      "Source": "community",
+      "ManagerName": "Chocolatey"
+    },
+    {
+      "Id": "KB2919442",
+      "Name": "KB2919442",
+      "Version": "1.0.20160915",
+      "Source": "community",
+      "ManagerName": "Chocolatey"
+    },
+    {
+      "Id": "KB2999226",
+      "Name": "KB2999226",
+      "Version": "1.0.20181019",
+      "Source": "community",
+      "ManagerName": "Chocolatey"
+    },
+    {
+      "Id": "KB3033929",
+      "Name": "KB3033929",
+      "Version": "1.0.5",
+      "Source": "community",
+      "ManagerName": "Chocolatey"
+    },
+    {
+      "Id": "KB3035131",
+      "Name": "KB3035131",
+      "Version": "1.0.3",
+      "Source": "community",
+      "ManagerName": "Chocolatey"
+    },
+    {
+      "Id": "Lenovo.MigrationAssistant",
+      "Name": "Lenovo Migration Assistant",
+      "Version": "2.1.4.6",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "Lenovo.ServiceBridge",
+      "Name": "Lenovo Service Bridge",
+      "Version": "5.0.2.18",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "LioQing.LLMExtensionforCommandPalette",
+      "Name": "LLM Extension for Command Palette",
+      "Version": "0.0.2.0",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "Locomorange.UIAutomationMCP",
+      "Name": "UIAutomation MCP Server",
+      "Version": "0.1.1",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "MCP",
+      "Name": "MCP",
+      "Version": "0.1.1",
+      "Source": "PSGallery",
+      "ManagerName": "PowerShell7"
+    },
+    {
+      "Id": "MarkText.MarkText",
+      "Name": "MarkText",
+      "Version": "0.17.1",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "Microsoft.AppInstaller",
+      "Name": "App Installer",
+      "Version": "1.26.510.0",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "Microsoft.CLRTypesSQLServer.2019",
+      "Name": "Microsoft System CLR Types for SQL Server 2019",
+      "Version": "15.0.2000.5",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "Microsoft.DeploymentToolkit",
+      "Name": "Microsoft Deployment Toolkit",
+      "Version": "6.3.8456.1000",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "Microsoft.DotNet.DesktopRuntime.8",
+      "Name": "Microsoft .NET Windows Desktop Runtime 8.0",
+      "Version": "8.0.21",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "Microsoft.DotNet.DesktopRuntime.9",
+      "Name": "Microsoft .NET Windows Desktop Runtime 9.0",
+      "Version": "9.0.10",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "Microsoft.DotNet.Runtime.8",
+      "Name": "Microsoft .NET Runtime 8.0",
+      "Version": "8.0.21",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "Microsoft.Edge",
+      "Name": "Microsoft Edge",
+      "Version": "141.0.3537.92",
+      "Source": "winget",
+      "ManagerName": "Winget",
+      "Updates": {
+        "UpdatesIgnored": true,
+        "IgnoredVersion": "*"
+      }
+    },
+    {
+      "Id": "Microsoft.Edit",
+      "Name": "Edit",
+      "Version": "1.2.1",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "Microsoft.GameInput",
+      "Name": "Microsoft GameInput",
+      "Version": "3.0.26100.6154",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "Microsoft.NuGet",
+      "Name": "NuGet",
+      "Version": "6.14.0.116",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "Microsoft.Office",
+      "Name": "Microsoft 365 Apps for enterprise",
+      "Version": "16.0.19328.20082",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "Microsoft.OneDrive",
+      "Name": "Microsoft OneDrive",
+      "Version": "25.184.0921.0004",
+      "Source": "winget",
+      "ManagerName": "Winget",
+      "Updates": {
+        "UpdatesIgnored": true,
+        "IgnoredVersion": "*"
+      }
+    },
+    {
+      "Id": "Microsoft.PowerShell",
+      "Name": "PowerShell",
+      "Version": "7.5.4.0",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "Microsoft.PowerShell.ConsoleGuiTools",
+      "Name": "Microsoft.PowerShell.ConsoleGuiTools",
+      "Version": "0.7.7",
+      "Source": "PSGallery",
+      "ManagerName": "PowerShell7"
+    },
+    {
+      "Id": "Microsoft.PowerShell.SecretManagement",
+      "Name": "Microsoft.PowerShell.SecretManagement",
+      "Version": "1.1.2",
+      "Source": "PSGallery",
+      "ManagerName": "PowerShell7"
+    },
+    {
+      "Id": "Microsoft.PowerShell.SecretStore",
+      "Name": "Microsoft.PowerShell.SecretStore",
+      "Version": "1.0.6",
+      "Source": "PSGallery",
+      "ManagerName": "PowerShell7"
+    },
+    {
+      "Id": "Microsoft.PowerShell.ThreadJob",
+      "Name": "Microsoft.PowerShell.ThreadJob",
+      "Version": "2.2.0",
+      "Source": "PSGallery",
+      "ManagerName": "PowerShell7"
+    },
+    {
+      "Id": "Microsoft.PowerToys",
+      "Name": "PowerToys",
+      "Version": "0.95.0",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "Microsoft.Sysinternals.Autoruns",
+      "Name": "Autoruns",
+      "Version": "14.11",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "Microsoft.Teams",
+      "Name": "Microsoft Teams",
+      "Version": "25275.2601.4002.2815",
+      "Source": "winget",
+      "ManagerName": "Winget",
+      "Updates": {
+        "IgnoredVersion": "25227.205.3936.6644"
+      }
+    },
+    {
+      "Id": "Microsoft.UI.Xaml.2.8",
+      "Name": "Microsoft.UI.Xaml",
+      "Version": "8.2501.31001.0",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "Microsoft.VCLibs.Desktop.14",
+      "Name": "Microsoft Visual C\u002B\u002B 2015 UWP Desktop Runtime Package",
+      "Version": "14.0.33728.0",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "Microsoft.VCRedist.2008.x86",
+      "Name": "Microsoft Visual C\u002B\u002B 2008 Redistributable - x86",
+      "Version": "9.0.30729.6161",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "Microsoft.VCRedist.2013.x64",
+      "Name": "Microsoft Visual C\u002B\u002B 2013 Redistributable (x64)",
+      "Version": "12.0.40664.0",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "Microsoft.VCRedist.2013.x86",
+      "Name": "Microsoft Visual C\u002B\u002B 2013 Redistributable (x86)",
+      "Version": "12.0.40664.0",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "Microsoft.VCRedist.2015\u002B.x64",
+      "Name": "Microsoft Visual C\u002B\u002B 2015-2022 Redistributable (x64)",
+      "Version": "14.44.35211.0",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "Microsoft.VCRedist.2015\u002B.x86",
+      "Name": "Microsoft Visual C\u002B\u002B 2015-2022 Redistributable (x86)",
+      "Version": "14.44.35211.0",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "Microsoft.VisualStudio.2019.BuildTools",
+      "Name": "Visual Studio BuildTools 2019",
+      "Version": "16.11.52",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "Microsoft.VisualStudio.2022.BuildTools",
+      "Name": "Visual Studio BuildTools 2022",
+      "Version": "17.14.17",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "Microsoft.VisualStudio.2022.Community",
+      "Name": "Visual Studio Community 2022",
+      "Version": "\u003C 17.14.18",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "Microsoft.VisualStudioCode",
+      "Name": "Microsoft Visual Studio Code",
+      "Version": "1.105.1",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "Microsoft.WebDeploy",
+      "Name": "Microsoft Web Deploy",
+      "Version": "10.0.9419",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "Microsoft.WinDbg",
+      "Name": "WinDbg",
+      "Version": "1.2506.12002.0",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "Microsoft.WinGet.Client",
+      "Name": "Microsoft.WinGet.Client",
+      "Version": "1.12.350",
+      "Source": "PSGallery",
+      "ManagerName": "PowerShell7"
+    },
+    {
+      "Id": "Microsoft.WinGet.Client",
+      "Name": "Microsoft.WinGet.Client",
+      "Version": "1.11.460",
+      "Source": "PSGallery",
+      "ManagerName": "PowerShell7"
+    },
+    {
+      "Id": "Microsoft.WinGet.Client",
+      "Name": "Microsoft.WinGet.Client",
+      "Version": "1.11.440",
+      "Source": "PSGallery",
+      "ManagerName": "PowerShell7"
+    },
+    {
+      "Id": "Microsoft.WinGet.Client",
+      "Name": "Microsoft.WinGet.Client",
+      "Version": "1.11.410",
+      "Source": "PSGallery",
+      "ManagerName": "PowerShell7"
+    },
+    {
+      "Id": "Microsoft.WinGet.Client",
+      "Name": "Microsoft.WinGet.Client",
+      "Version": "1.11.400",
+      "Source": "PSGallery",
+      "ManagerName": "PowerShell7"
+    },
+    {
+      "Id": "Microsoft.WinGet.Client",
+      "Name": "Microsoft.WinGet.Client",
+      "Version": "1.10.340",
+      "Source": "PSGallery",
+      "ManagerName": "PowerShell7"
+    },
+    {
+      "Id": "Microsoft.WinGet.CommandNotFound",
+      "Name": "Microsoft.WinGet.CommandNotFound",
+      "Version": "1.0.4",
+      "Source": "PSGallery",
+      "ManagerName": "PowerShell7"
+    },
+    {
+      "Id": "Microsoft.WindowsADK",
+      "Name": "Windows Assessment and Deployment Kit",
+      "Version": "10.1.26100.2454",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "Microsoft.WindowsTerminal",
+      "Name": "Windows Terminal",
+      "Version": "1.23.12811.0",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "Microsoft.msodbcsql.17",
+      "Name": "Microsoft ODBC Driver 17 for SQL Server",
+      "Version": "17.10.6.1",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "MicrosoftTeams",
+      "Name": "MicrosoftTeams",
+      "Version": "7.4.0",
+      "Source": "PSGallery",
+      "ManagerName": "PowerShell7"
+    },
+    {
+      "Id": "MicrosoftTeams",
+      "Name": "MicrosoftTeams",
+      "Version": "7.3.1",
+      "Source": "PSGallery",
+      "ManagerName": "PowerShell7"
+    },
+    {
+      "Id": "MicrosoftTeams",
+      "Name": "MicrosoftTeams",
+      "Version": "7.2.0",
+      "Source": "PSGallery",
+      "ManagerName": "PowerShell7"
+    },
+    {
+      "Id": "MicrosoftTeams",
+      "Name": "MicrosoftTeams",
+      "Version": "7.1.0",
+      "Source": "PSGallery",
+      "ManagerName": "PowerShell7"
+    },
+    {
+      "Id": "Nilesoft.Shell",
+      "Name": "Nilesoft Shell",
+      "Version": "1.9.18",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "Notepad\u002B\u002B.Notepad\u002B\u002B",
+      "Name": "Notepad\u002B\u002B",
+      "Version": "8.8.5",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "Nushell.Nushell",
+      "Name": "nu",
+      "Version": "0.108.0",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "Ollama.Ollama",
+      "Name": "Ollama",
+      "Version": "0.12.6",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "OpenJS.NodeJS.LTS",
+      "Name": "Node.js (LTS)",
+      "Version": "22.20.0",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "Oven-sh.Bun",
+      "Name": "Bun",
+      "Version": "1.3.0",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "PS2EXE2ps12exe",
+      "Name": "PS2EXE2ps12exe",
+      "Version": "0.0.2",
+      "Source": "PSGallery",
+      "ManagerName": "PowerShell7"
+    },
+    {
+      "Id": "PSFzf",
+      "Name": "PSFzf",
+      "Version": "2.7.2",
+      "Source": "PSGallery",
+      "ManagerName": "PowerShell7"
+    },
+    {
+      "Id": "PSFzf",
+      "Name": "PSFzf",
+      "Version": "2.6.14",
+      "Source": "PSGallery",
+      "ManagerName": "PowerShell7"
+    },
+    {
+      "Id": "PSFzf",
+      "Name": "PSFzf",
+      "Version": "2.6.10",
+      "Source": "PSGallery",
+      "ManagerName": "PowerShell7"
+    },
+    {
+      "Id": "PSFzf",
+      "Name": "PSFzf",
+      "Version": "2.6.7",
+      "Source": "PSGallery",
+      "ManagerName": "PowerShell7"
+    },
+    {
+      "Id": "PSGraphQL",
+      "Name": "PSGraphQL",
+      "Version": "2.1.0",
+      "Source": "PSGallery",
+      "ManagerName": "PowerShell7"
+    },
+    {
+      "Id": "PSProfiler",
+      "Name": "PSProfiler",
+      "Version": "1.0.5.0",
+      "Source": "PSGallery",
+      "ManagerName": "PowerShell7"
+    },
+    {
+      "Id": "PSSQLite",
+      "Name": "PSSQLite",
+      "Version": "1.1.0",
+      "Source": "PSGallery",
+      "ManagerName": "PowerShell7"
+    },
+    {
+      "Id": "PSScriptAnalyzer",
+      "Name": "PSScriptAnalyzer",
+      "Version": "1.24.0",
+      "Source": "PSGallery",
+      "ManagerName": "PowerShell7"
+    },
+    {
+      "Id": "PSTeams",
+      "Name": "PSTeams",
+      "Version": "2.4.0",
+      "Source": "PSGallery",
+      "ManagerName": "PowerShell7"
+    },
+    {
+      "Id": "PSWindowsUpdate",
+      "Name": "PSWindowsUpdate",
+      "Version": "2.2.1.5",
+      "Source": "PSGallery",
+      "ManagerName": "PowerShell7"
+    },
+    {
+      "Id": "Pansies",
+      "Name": "Pansies",
+      "Version": "2.0.0",
+      "Source": "PSGallery",
+      "ManagerName": "PowerShell7"
+    },
+    {
+      "Id": "PnP.PowerShell",
+      "Name": "PnP.PowerShell",
+      "Version": "3.1.0",
+      "Source": "PSGallery",
+      "ManagerName": "PowerShell7"
+    },
+    {
+      "Id": "PowerShellUtilities",
+      "Name": "PowerShellUtilities",
+      "Version": "2.0.0",
+      "Source": "PSGallery",
+      "ManagerName": "PowerShell7"
+    },
+    {
+      "Id": "PsModuleBase",
+      "Name": "PsModuleBase",
+      "Version": "0.1.4",
+      "Source": "PSGallery",
+      "ManagerName": "PowerShell7"
+    },
+    {
+      "Id": "PushBullet",
+      "Name": "PushBullet",
+      "Version": "1.0.0",
+      "Source": "PSGallery",
+      "ManagerName": "PowerShell7"
+    },
+    {
+      "Id": "Python.Launcher",
+      "Name": "Python Launcher",
+      "Version": "\u003E 3.13.5",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "Python.Python.3.13",
+      "Name": "Python 3.13",
+      "Version": "3.13.9",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "Python.Python.3.14",
+      "Name": "Python 3.14",
+      "Version": "3.14.0",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "REALiX.HWiNFO",
+      "Name": "HWiNFO\u00AE",
+      "Version": "8.32",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "RaspberryPiFoundation.RaspberryPiImager",
+      "Name": "Raspberry Pi Imager",
+      "Version": "1.9.6",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "Resplendence.WhoCrashed",
+      "Name": "WhoCrashed",
+      "Version": "7.10",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "RobocopyPS",
+      "Name": "RobocopyPS",
+      "Version": "0.2.21",
+      "Source": "PSGallery",
+      "ManagerName": "PowerShell7"
+    },
+    {
+      "Id": "Rustlang.Rustup",
+      "Name": "Rustup: the Rust toolchain installer",
+      "Version": "1.28.2",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "SNMPv3",
+      "Name": "SNMPv3",
+      "Version": "1.2.1",
+      "Source": "PSGallery",
+      "ManagerName": "PowerShell7"
+    },
+    {
+      "Id": "Samsung.SmartSwitch",
+      "Name": "Smart Switch",
+      "Version": "4.3.24094.1",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "SergeyFilippov.RegistryFinder",
+      "Name": "Registry Finder",
+      "Version": "2.60",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "ShiningLight.OpenSSL.Dev",
+      "Name": "OpenSSL",
+      "Version": "3.6.0",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "Starship.Starship",
+      "Name": "starship",
+      "Version": "1.23.0",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "TechPowerUp.GPU-Z",
+      "Name": "TechPowerUp GPU-Z",
+      "Version": "2.68.0",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "TerminalGuiDesigner",
+      "Name": "TerminalGuiDesigner",
+      "Version": "0.0.1",
+      "Source": "PSGallery",
+      "ManagerName": "PowerShell7"
+    },
+    {
+      "Id": "ThreadJob",
+      "Name": "ThreadJob",
+      "Version": "2.1.0",
+      "Source": "PSGallery",
+      "ManagerName": "PowerShell7"
+    },
+    {
+      "Id": "Valve.Steam",
+      "Name": "Steam",
+      "Version": "2.10.91.91",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "WIMWitch",
+      "Name": "WIMWitch",
+      "Version": "3.4.6",
+      "Source": "PSGallery",
+      "ManagerName": "PowerShell7"
+    },
+    {
+      "Id": "WinsiderSS.SystemInformer",
+      "Name": "System Informer",
+      "Version": "3.2.25099.1530",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "XBPS",
+      "Name": "XBPS",
+      "Version": "0.1.0",
+      "Source": "PSGallery",
+      "ManagerName": "PowerShell7"
+    },
+    {
+      "Id": "XPDM5VSMTKQLBJ",
+      "Name": "Battle.net",
+      "Version": "Unknown",
+      "Source": "msstore",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "XboxlivePSModule",
+      "Name": "XboxlivePSModule",
+      "Version": "1.0.0.4",
+      "Source": "PSGallery",
+      "ManagerName": "PowerShell7"
+    },
+    {
+      "Id": "ZAP.ZAP",
+      "Name": "Zed Attack Proxy",
+      "Version": "2.16.1",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "advaith.CurrencyConverterCommandPalette",
+      "Name": "Currency Converter for Command Palette",
+      "Version": "0.1.0.0",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "ajeetdsouza.zoxide",
+      "Name": "zoxide",
+      "Version": "0.9.8",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "asciinema-player",
+      "Name": "Asciinema Player",
+      "Version": "3.12.1",
+      "Source": "npm",
+      "ManagerName": "Npm"
+    },
+    {
+      "Id": "asciinema.agg",
+      "Name": "agg",
+      "Version": "1.6.0",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "astral-sh.uv",
+      "Name": "uv",
+      "Version": "0.9.5",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "astral-sh.uv",
+      "Name": "uv",
+      "Version": "0.9.4",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "awakecoding.mcp-proxy-tool",
+      "Name": "MCP Proxy Tool",
+      "Version": "0.1.0",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "ccexp",
+      "Name": "Ccexp",
+      "Version": "4.0.0",
+      "Source": "npm",
+      "ManagerName": "Npm"
+    },
+    {
+      "Id": "ccusage",
+      "Name": "Ccusage",
+      "Version": "17.1.3",
+      "Source": "npm",
+      "ManagerName": "Npm"
+    },
+    {
+      "Id": "charmbracelet.glow",
+      "Name": "glow",
+      "Version": "2.1.1",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "charmbracelet.gum",
+      "Name": "gum",
+      "Version": "0.17.0",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "chocolatey",
+      "Name": "Chocolatey",
+      "Version": "2.5.1",
+      "Source": "community",
+      "ManagerName": "Chocolatey"
+    },
+    {
+      "Id": "chocolatey-compatibility.extension",
+      "Name": "Chocolatey Compatibility.extension",
+      "Version": "1.0.0",
+      "Source": "community",
+      "ManagerName": "Chocolatey"
+    },
+    {
+      "Id": "chocolatey-core.extension",
+      "Name": "Chocolatey Core.extension",
+      "Version": "1.4.0",
+      "Source": "community",
+      "ManagerName": "Chocolatey"
+    },
+    {
+      "Id": "chocolatey-dotnetfx.extension",
+      "Name": "Chocolatey Dotnetfx.extension",
+      "Version": "1.0.1",
+      "Source": "community",
+      "ManagerName": "Chocolatey"
+    },
+    {
+      "Id": "chocolatey-visualstudio.extension",
+      "Name": "Chocolatey Visualstudio.extension",
+      "Version": "1.11.1",
+      "Source": "community",
+      "ManagerName": "Chocolatey"
+    },
+    {
+      "Id": "chocolatey-windowsupdate.extension",
+      "Name": "Chocolatey Windowsupdate.extension",
+      "Version": "1.0.5",
+      "Source": "community",
+      "ManagerName": "Chocolatey"
+    },
+    {
+      "Id": "chrisant996.Clink",
+      "Name": "Clink",
+      "Version": "1.8.7",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "chrisant996.Clink",
+      "Name": "Clink",
+      "Version": "1.8.6",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "claudekit",
+      "Name": "Claudekit",
+      "Version": "0.9.4",
+      "Source": "npm",
+      "ManagerName": "Npm"
+    },
+    {
+      "Id": "cliHelper.logger",
+      "Name": "CliHelper.logger",
+      "Version": "0.1.2",
+      "Source": "PSGallery",
+      "ManagerName": "PowerShell7"
+    },
+    {
+      "Id": "cloudbase.qemu-img",
+      "Name": "qemu-img",
+      "Version": "2.3.0",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "clsid2.mpc-hc",
+      "Name": "MPC-HC",
+      "Version": "2.5.4",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "danielmiessler.Fabric",
+      "Name": "Fabric",
+      "Version": "1.4.319",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "docker-cli",
+      "Name": "Docker Cli",
+      "Version": "28.5.1",
+      "Source": "community",
+      "ManagerName": "Chocolatey"
+    },
+    {
+      "Id": "dotnetfx",
+      "Name": "Dotnetfx",
+      "Version": "4.8.0.20220524",
+      "Source": "community",
+      "ManagerName": "Chocolatey"
+    },
+    {
+      "Id": "dsymbol.yt-dlp-gui",
+      "Name": "yt-dlp-gui",
+      "Version": "2025.09.30",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "gc-nuclei-mcp",
+      "Name": "Gc Nuclei Mcp",
+      "Version": "1.1.5",
+      "Source": "npm",
+      "ManagerName": "Npm"
+    },
+    {
+      "Id": "gerardog.gsudo",
+      "Name": "gsudo",
+      "Version": "2.6.1",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "graphql-toolbox",
+      "Name": "Graphql Toolbox",
+      "Version": "0.1.6",
+      "Source": "npm",
+      "ManagerName": "Npm"
+    },
+    {
+      "Id": "graphql-zeus",
+      "Name": "Graphql Zeus",
+      "Version": "7.1.4",
+      "Source": "npm",
+      "ManagerName": "Npm"
+    },
+    {
+      "Id": "graphql-zeus",
+      "Name": "Graphql Zeus",
+      "Version": "7.1.3",
+      "Source": "npm",
+      "ManagerName": "Npm"
+    },
+    {
+      "Id": "hot-chocolatey",
+      "Name": "Hot Chocolatey",
+      "Version": "7.0.1",
+      "Source": "community",
+      "ManagerName": "Chocolatey"
+    },
+    {
+      "Id": "innounp",
+      "Name": "Innounp",
+      "Version": "2.65.2",
+      "Source": "main",
+      "ManagerName": "Scoop"
+    },
+    {
+      "Id": "jq",
+      "Name": "Jq",
+      "Version": "1.8.1",
+      "Source": "main",
+      "ManagerName": "Scoop"
+    },
+    {
+      "Id": "junegunn.fzf",
+      "Name": "fzf",
+      "Version": "0.66.0",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "lin-ycv.EverythingCmdPal",
+      "Name": "EverythingCmdPal",
+      "Version": "0.5.25082.0",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "mcpgod",
+      "Name": "Mcpgod",
+      "Version": "0.1.1",
+      "Source": "npm",
+      "ManagerName": "Npm"
+    },
+    {
+      "Id": "muesli.duf",
+      "Name": "duf",
+      "Version": "0.9.1",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "n8n-editor-ui",
+      "Name": "N8n Editor Ui",
+      "Version": "1.117.1",
+      "Source": "npm",
+      "ManagerName": "Npm"
+    },
+    {
+      "Id": "n8n-editor-ui",
+      "Name": "N8n Editor Ui",
+      "Version": "1.116.0",
+      "Source": "npm",
+      "ManagerName": "Npm"
+    },
+    {
+      "Id": "n8n-editor-ui",
+      "Name": "N8n Editor Ui",
+      "Version": "1.115.0",
+      "Source": "npm",
+      "ManagerName": "Npm"
+    },
+    {
+      "Id": "navalia",
+      "Name": "Navalia",
+      "Version": "1.3.0",
+      "Source": "npm",
+      "ManagerName": "Npm"
+    },
+    {
+      "Id": "npm",
+      "Name": "Npm",
+      "Version": "11.6.2",
+      "Source": "npm",
+      "ManagerName": "Npm"
+    },
+    {
+      "Id": "npm-gui",
+      "Name": "Npm Gui",
+      "Version": "4.0.4",
+      "Source": "npm",
+      "ManagerName": "Npm"
+    },
+    {
+      "Id": "nuclei",
+      "Name": "Nuclei",
+      "Version": "3.4.10",
+      "Source": "main",
+      "ManagerName": "Scoop"
+    },
+    {
+      "Id": "powershell-yaml",
+      "Name": "Powershell Yaml",
+      "Version": "0.4.12",
+      "Source": "PSGallery",
+      "ManagerName": "PowerShell7"
+    },
+    {
+      "Id": "python",
+      "Name": "Python",
+      "Version": "3.14.0",
+      "Source": "community",
+      "ManagerName": "Chocolatey"
+    },
+    {
+      "Id": "python3",
+      "Name": "Python3",
+      "Version": "3.14.0",
+      "Source": "community",
+      "ManagerName": "Chocolatey"
+    },
+    {
+      "Id": "python313",
+      "Name": "Python313",
+      "Version": "3.13.9",
+      "Source": "community",
+      "ManagerName": "Chocolatey"
+    },
+    {
+      "Id": "python314",
+      "Name": "Python314",
+      "Version": "3.14.0",
+      "Source": "community",
+      "ManagerName": "Chocolatey"
+    },
+    {
+      "Id": "scoop-search",
+      "Name": "Scoop Search",
+      "Version": "2.1.0",
+      "Source": "main",
+      "ManagerName": "Scoop"
+    },
+    {
+      "Id": "sharkdp.bat",
+      "Name": "bat",
+      "Version": "0.26.0",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "sharkdp.bat",
+      "Name": "bat",
+      "Version": "0.25.0",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "sharkdp.fd",
+      "Name": "fd",
+      "Version": "10.3.0",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "stashapp-api",
+      "Name": "Stashapp Api",
+      "Version": "0.3.0",
+      "Source": "npm",
+      "ManagerName": "Npm"
+    },
+    {
+      "Id": "stashapp-api",
+      "Name": "Stashapp Api",
+      "Version": "0.2.17",
+      "Source": "npm",
+      "ManagerName": "Npm"
+    },
+    {
+      "Id": "stashapp-api",
+      "Name": "Stashapp Api",
+      "Version": "0.2.16",
+      "Source": "npm",
+      "ManagerName": "Npm"
+    },
+    {
+      "Id": "tldr",
+      "Name": "Tldr",
+      "Version": "0.6.1",
+      "Source": "main",
+      "ManagerName": "Scoop"
+    },
+    {
+      "Id": "tweakcc",
+      "Name": "Tweakcc",
+      "Version": "2.0.1",
+      "Source": "npm",
+      "ManagerName": "Npm"
+    },
+    {
+      "Id": "twpayne.chezmoi",
+      "Name": "chezmoi",
+      "Version": "2.66.1",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "twpayne.chezmoi",
+      "Name": "chezmoi",
+      "Version": "2.66.0",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "vcpkg",
+      "Name": "Vcpkg",
+      "Version": "2025.10.17",
+      "Source": "main",
+      "ManagerName": "Scoop"
+    },
+    {
+      "Id": "vcredist140",
+      "Name": "Vcredist140",
+      "Version": "14.44.35211",
+      "Source": "community",
+      "ManagerName": "Chocolatey"
+    },
+    {
+      "Id": "vcredist2015",
+      "Name": "Vcredist2015",
+      "Version": "14.0.24215.20170201",
+      "Source": "community",
+      "ManagerName": "Chocolatey"
+    },
+    {
+      "Id": "visualstudio-installer",
+      "Name": "Visualstudio Installer",
+      "Version": "2.0.3",
+      "Source": "community",
+      "ManagerName": "Chocolatey"
+    },
+    {
+      "Id": "visualstudio2019-workload-vctools",
+      "Name": "Visualstudio2019 Workload Vctools",
+      "Version": "1.0.1",
+      "Source": "community",
+      "ManagerName": "Chocolatey"
+    },
+    {
+      "Id": "visualstudio2019buildtools",
+      "Name": "Visualstudio2019buildtools",
+      "Version": "16.11.52",
+      "Source": "community",
+      "ManagerName": "Chocolatey"
+    },
+    {
+      "Id": "why-is-node-running",
+      "Name": "Why Is Node Running",
+      "Version": "3.2.2",
+      "Source": "npm",
+      "ManagerName": "Npm"
+    },
+    {
+      "Id": "wixtoolset",
+      "Name": "Wixtoolset",
+      "Version": "6.0.2",
+      "Source": "main",
+      "ManagerName": "Scoop"
+    },
+    {
+      "Id": "yorukot.superfile",
+      "Name": "superfile",
+      "Version": "v1.4.0",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "yt-dlp.FFmpeg",
+      "Name": "FFmpeg for yt-dlp",
+      "Version": "N-121271-g74115b017c-20250930",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    },
+    {
+      "Id": "yt-dlp.yt-dlp",
+      "Name": "yt-dlp",
+      "Version": "2025.10.14",
+      "Source": "winget",
+      "ManagerName": "Winget"
+    }
+  ],
+  "incompatible_packages_info": "Incompatible packages cannot be installed from UniGetUI, either because they came from a local source (for example Local PC) or because the package manager was unavailable. Nevertheless, they have been listed here for logging purposes.",
+  "incompatible_packages": []
+}

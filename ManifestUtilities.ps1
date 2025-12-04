@@ -346,6 +346,7 @@ function Get-RelativeArchivePath {
     # Determine folder based on backup item
     $destinationFolder = switch ($BackupItem) {
         { $_ -in @("Logs") } { "Files" }
+        { $_ -in @("AI") } { "Files/AI" }
         { $_ -in @("Applications", "Notepad++", "WindowsTerminal") } { "Files/Applications" }
         { $_ -in @("TotalCommander") } { "Files" }
         { $_ -in @("Scripts") } { "Files" }

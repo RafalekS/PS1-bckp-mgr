@@ -437,6 +437,7 @@ function Get-BackupDestinationFolder {
 
     switch ($ItemName) {
         { $_ -in @("Logs") } { return "Files" }
+        { $_ -in @("AI") } { return "Files\AI" }
         { $_ -in @("Applications", "Notepad++", "WindowsTerminal") } { return "Files\Applications" }
         { $_ -in @("TotalCommander") } { return "Files" }
         { $_ -in @("Scripts") } { return "Files" }

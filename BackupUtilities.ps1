@@ -300,6 +300,37 @@ function Handle-Error {
 
 #region Validation Functions
 
+function Test-IsReservedDeviceName {
+    <#
+    .SYNOPSIS
+        Checks if a filename is a reserved Windows device name
+    .DESCRIPTION
+        Windows reserves certain names like NUL, CON, PRN, AUX, COM1-9, LPT1-9
+        These can cause issues when PowerShell tries to access them as files
+    #>
+    param(
+        [string]$Path
+    )
+
+    $fileName = Split-Path $Path -Leaf
+    $baseName = [System.IO.Path]::GetFileNameWithoutExtension($fileName)
+
+    # Reserved device names (case-insensitive)
+    $reservedNames = @(
+        'CON', 'PRN', 'AUX', 'NUL',
+        'COM1', 'COM2', 'COM3', 'COM4', 'COM5', 'COM6', 'COM7', 'COM8', 'COM9',
+        'LPT1', 'LPT2', 'LPT3', 'LPT4', 'LPT5', 'LPT6', 'LPT7', 'LPT8', 'LPT9'
+    )
+
+    foreach ($reserved in $reservedNames) {
+        if ($baseName -ieq $reserved) {
+            return $true
+        }
+    }
+
+    return $false
+}
+
 function Test-PathExcluded {
     <#
     .SYNOPSIS
@@ -311,6 +342,12 @@ function Test-PathExcluded {
         [string]$Path,
         [object]$Config
     )
+
+    # Check for reserved Windows device names first
+    if (Test-IsReservedDeviceName -Path $Path) {
+        Write-Log "Excluded (reserved device name): $Path" -Level "WARNING"
+        return $true
+    }
 
     if (-not $Config.GlobalExclusions) {
         return $false
@@ -401,14 +438,9 @@ function Test-BackupItemsExist {
         Write-Log "Path Validation: $existingPaths/$totalPaths paths exist" -Level "WARNING"
         Write-Log "WARNING: $($missingItems.Count) paths will be skipped (not found):" -Level "WARNING"
 
-        # Show first 10 missing items
-        $displayCount = [Math]::Min(10, $missingItems.Count)
-        for ($i = 0; $i -lt $displayCount; $i++) {
-            Write-Log "  - $($missingItems[$i])" -Level "WARNING"
-        }
-
-        if ($missingItems.Count -gt 10) {
-            Write-Log "  ... and $($missingItems.Count - 10) more missing paths" -Level "WARNING"
+        # Show ALL missing items (not just 10)
+        foreach ($item in $missingItems) {
+            Write-Log "  - $item" -Level "WARNING"
         }
 
         Write-Log "Backup will continue with existing paths only" -Level "INFO"
@@ -2128,8 +2160,8 @@ function Check-DiskSpaceAndEstimateSize {
                 if (Test-PathAndLog -Path $expandedPath -ItemType "Path") {
                     try {
                         Write-Log "Getting size for: $expandedPath" -Level "DEBUG"
-                        $pathSize = Get-OptimizedPathSize -Path $expandedPath
-                        
+                        $pathSize = Get-OptimizedPathSize -Path $expandedPath -Config $Config
+
                         # Cache the result
                         $sizeCache[$expandedPath] = $pathSize
                         $itemSize += $pathSize
@@ -2190,16 +2222,7 @@ function Check-DiskSpaceAndEstimateSize {
         }
     }
 
-    $estimatedSizeGB = [math]::Round($estimatedBackupSize / 1GB, 2)
-    $freeSpaceGB = if ($isRemoteDestination) { "N/A" } else { [math]::Round($freeSpace / 1GB, 2) }
-
-    Write-Log "Estimated backup size: $estimatedSizeGB GB" -Level "INFO"
-    Write-Log "Available free space: $freeSpaceGB GB" -Level "INFO"
-
-    foreach ($item in $estimatedItems) {
-        $itemSizeMB = [math]::Round($item.Size / 1MB, 2)
-        Write-Log "Estimated size for $($item.Item): $itemSizeMB MB" -Level "INFO"
-    }
+    # Don't log here - main.ps1 will log the results to avoid duplication
 
     return @{
         EstimatedSize = $estimatedBackupSize
@@ -2216,9 +2239,10 @@ function Check-DiskSpaceAndEstimateSize {
 function Get-OptimizedPathSize {
     param (
         [Parameter(Mandatory=$true)]
-        [string]$Path
+        [string]$Path,
+        [object]$Config = $null
     )
-    
+
     try {
         # Check if it's a single file first
         if (Test-Path $Path -PathType Leaf) {
@@ -2234,16 +2258,16 @@ function Get-OptimizedPathSize {
                 return $fileInfo.Length
             }
         }
-        
+
         # Handle directories with optimizations
         if (Test-Path $Path -PathType Container) {
-            return Get-DirectorySizeOptimized -Path $Path
+            return Get-DirectorySizeOptimized -Path $Path -Config $Config
         }
-        
+
         # Path doesn't exist or is inaccessible
         Write-Log "Path not accessible: $Path" -Level "WARNING"
         return 0
-        
+
     } catch {
         Write-Log "Error in Get-OptimizedPathSize for $Path : $_" -Level "ERROR"
         return 0
@@ -2253,7 +2277,8 @@ function Get-OptimizedPathSize {
 function Get-DirectorySizeOptimized {
     param (
         [Parameter(Mandatory=$true)]
-        [string]$Path
+        [string]$Path,
+        [object]$Config = $null
     )
     
     try {
@@ -2266,9 +2291,53 @@ function Get-DirectorySizeOptimized {
         # Optimization 2: For very small directories (< 15 items), calculate directly without jobs
         if ($totalSampleItems -lt 15) {
             Write-Log "Small directory (< 15 items) - direct calculation: $Path" -Level "DEBUG"
-            $directSize = (Get-ChildItem $Path -Recurse -File -Force -ErrorAction SilentlyContinue | 
-                          Measure-Object -Property Length -Sum -ErrorAction SilentlyContinue).Sum
-            return [long]($directSize -or 0)
+
+            # Get all files and filter by exclusions
+            $allFiles = Get-ChildItem $Path -Recurse -File -Force -ErrorAction SilentlyContinue
+
+            # Apply exclusions if Config is provided
+            if ($Config -and $Config.GlobalExclusions) {
+                $allFiles = $allFiles | Where-Object {
+                    $filePath = $_.FullName
+                    $shouldInclude = $true
+
+                    # Check for reserved device names
+                    if (Test-IsReservedDeviceName -Path $filePath) {
+                        return $false
+                    }
+
+                    # Check folder exclusions
+                    if ($Config.GlobalExclusions.Folders) {
+                        foreach ($pattern in $Config.GlobalExclusions.Folders) {
+                            $patternNorm = $pattern.Replace('/', '\').TrimEnd('\')
+                            if ($filePath -like $patternNorm -or $filePath -like "$patternNorm\*") {
+                                $shouldInclude = $false
+                                break
+                            }
+                        }
+                    }
+
+                    # Check file exclusions
+                    if ($shouldInclude -and $Config.GlobalExclusions.Files) {
+                        $fileName = $_.Name
+                        foreach ($pattern in $Config.GlobalExclusions.Files) {
+                            if ($fileName -like $pattern) {
+                                $shouldInclude = $false
+                                break
+                            }
+                        }
+                    }
+
+                    $shouldInclude
+                }
+            }
+
+            $directSize = ($allFiles | Measure-Object -Property Length -Sum -ErrorAction SilentlyContinue).Sum
+            if ($directSize) {
+                return [long]$directSize
+            } else {
+                return 0
+            }
         }
         
         # Optimization 3: Check if all sample files are tiny (< 1KB each)
@@ -2286,16 +2355,64 @@ function Get-DirectorySizeOptimized {
         # If all sampled files are tiny, estimate based on file count
         if ($allFilesSmall -and $sampleFiles.Count -gt 0) {
             Write-Log "Directory contains only small files - using estimation: $Path" -Level "DEBUG"
-            
-            # Get total file count efficiently
+
+            # Extract exclusion patterns for the job
+            $excludeFolders = @()
+            $excludeFiles = @()
+            if ($Config -and $Config.GlobalExclusions) {
+                if ($Config.GlobalExclusions.Folders) {
+                    $excludeFolders = $Config.GlobalExclusions.Folders
+                }
+                if ($Config.GlobalExclusions.Files) {
+                    $excludeFiles = $Config.GlobalExclusions.Files
+                }
+            }
+
+            # Get total file count efficiently with exclusions
             $totalFileCount = 0
             try {
-                # Use faster counting method
+                # Use faster counting method with exclusions
                 $countJob = Start-Job -ScriptBlock {
-                    param($pathToCount)
-                    (Get-ChildItem $pathToCount -Recurse -File -Force -ErrorAction SilentlyContinue | Measure-Object).Count
-                } -ArgumentList $Path
-                
+                    param($pathToCount, $excludeFolderPatterns, $excludeFilePatterns)
+
+                    function Test-ShouldExclude {
+                        param($itemPath, $folderPatterns, $filePatterns)
+                        $normalized = $itemPath.TrimEnd('\', '/')
+
+                        # Check for reserved device names
+                        $fileName = Split-Path $itemPath -Leaf
+                        $baseName = [System.IO.Path]::GetFileNameWithoutExtension($fileName)
+                        $reservedNames = @('CON', 'PRN', 'AUX', 'NUL', 'COM1', 'COM2', 'COM3', 'COM4', 'COM5', 'COM6', 'COM7', 'COM8', 'COM9', 'LPT1', 'LPT2', 'LPT3', 'LPT4', 'LPT5', 'LPT6', 'LPT7', 'LPT8', 'LPT9')
+                        if ($reservedNames -contains $baseName.ToUpper()) {
+                            return $true
+                        }
+
+                        foreach ($pattern in $folderPatterns) {
+                            $patternNorm = $pattern.Replace('/', '\').TrimEnd('\')
+                            if ($normalized -like $patternNorm -or $normalized -like "$patternNorm\*") {
+                                return $true
+                            }
+                        }
+
+                        if (Test-Path $itemPath -PathType Leaf -ErrorAction SilentlyContinue) {
+                            $fileName = Split-Path $itemPath -Leaf
+                            foreach ($pattern in $filePatterns) {
+                                if ($fileName -like $pattern) {
+                                    return $true
+                                }
+                            }
+                        }
+
+                        return $false
+                    }
+
+                    $allFiles = Get-ChildItem $pathToCount -Recurse -File -Force -ErrorAction SilentlyContinue
+                    $filteredFiles = $allFiles | Where-Object {
+                        -not (Test-ShouldExclude -itemPath $_.FullName -folderPatterns $excludeFolderPatterns -filePatterns $excludeFilePatterns)
+                    }
+                    ($filteredFiles | Measure-Object).Count
+                } -ArgumentList $Path, $excludeFolders, $excludeFiles
+
                 if ($countJob | Wait-Job -Timeout 15) {
                     $totalFileCount = Receive-Job $countJob
                     Remove-Job $countJob
@@ -2307,7 +2424,7 @@ function Get-DirectorySizeOptimized {
             } catch {
                 $totalFileCount = $sampleFiles.Count * 10  # Fallback estimate
             }
-            
+
             # Estimate total size based on average small file size
             if ($sampleFiles.Count -gt 0) {
                 $avgFileSize = $totalSampleSize / $sampleFiles.Count
@@ -2318,8 +2435,8 @@ function Get-DirectorySizeOptimized {
         }
         
         # Optimization 4: Use timeout-based calculation for larger directories
-        return Get-DirectorySizeWithTimeout -Path $Path -TimeoutSeconds 45
-        
+        return Get-DirectorySizeWithTimeout -Path $Path -TimeoutSeconds 45 -Config $Config
+
     } catch {
         Write-Log "Error in Get-DirectorySizeOptimized for $Path : $_" -Level "ERROR"
         return 10MB  # Default estimate for error cases
@@ -2330,50 +2447,153 @@ function Get-DirectorySizeWithTimeout {
     param (
         [Parameter(Mandatory=$true)]
         [string]$Path,
-        [int]$TimeoutSeconds = 45
+        [int]$TimeoutSeconds = 45,
+        [object]$Config = $null
     )
-    
+
     try {
         Write-Log "Calculating directory size with $TimeoutSeconds second timeout: $Path" -Level "DEBUG"
-        
+
         # Use PowerShell method only (robocopy removed for reliability)
         Write-Log "Using PowerShell method for size calculation" -Level "DEBUG"
-        
+
         # Determine if we need elevated permissions
         $needsElevation = $Path.StartsWith("C:\Windows") -or $Path.StartsWith("C:\Program Files")
-        
+
+        # Extract exclusion patterns from config
+        $excludeFolders = @()
+        $excludeFiles = @()
+        if ($Config -and $Config.GlobalExclusions) {
+            if ($Config.GlobalExclusions.Folders) {
+                $excludeFolders = $Config.GlobalExclusions.Folders
+                Write-Log "Using $($excludeFolders.Count) folder exclusion patterns" -Level "DEBUG"
+            }
+            if ($Config.GlobalExclusions.Files) {
+                $excludeFiles = $Config.GlobalExclusions.Files
+                Write-Log "Using $($excludeFiles.Count) file exclusion patterns" -Level "DEBUG"
+            }
+        } else {
+            Write-Log "WARNING: No Config or GlobalExclusions provided - size may be incorrect" -Level "WARNING"
+        }
+
         # Create size calculation job with better error handling
         $sizeJob = Start-Job -ScriptBlock {
-            param($pathToCheck, $useGsudo)
-            
+            param($pathToCheck, $useGsudo, $excludeFolderPatterns, $excludeFilePatterns)
+
             try {
-                if ($useGsudo -and (Get-Command gsudo -ErrorAction SilentlyContinue)) {
-                    $sizeInBytes = (gsudo Get-ChildItem -Path $pathToCheck -Recurse -File -Force -ErrorAction SilentlyContinue | 
-                                   Measure-Object -Property Length -Sum -ErrorAction SilentlyContinue).Sum
-                } else {
-                    $sizeInBytes = (Get-ChildItem -Path $pathToCheck -Recurse -File -Force -ErrorAction SilentlyContinue | 
-                                   Measure-Object -Property Length -Sum -ErrorAction SilentlyContinue).Sum
+                # Helper function to check if path should be excluded
+                function Test-ShouldExclude {
+                    param($itemPath, $folderPatterns, $filePatterns)
+
+                    $normalized = $itemPath.TrimEnd('\', '/')
+
+                    # Check folder exclusions
+                    foreach ($pattern in $folderPatterns) {
+                        $patternNorm = $pattern.Replace('/', '\').TrimEnd('\')
+                        if ($normalized -like $patternNorm -or $normalized -like "$patternNorm\*") {
+                            return $true
+                        }
+                    }
+
+                    # Check file exclusions
+                    if (Test-Path $itemPath -PathType Leaf -ErrorAction SilentlyContinue) {
+                        $fileName = Split-Path $itemPath -Leaf
+                        foreach ($pattern in $filePatterns) {
+                            if ($fileName -like $pattern) {
+                                return $true
+                            }
+                        }
+                    }
+
+                    return $false
                 }
-                
-                return [long]($sizeInBytes -or 0)
+
+                if ($useGsudo -and (Get-Command gsudo -ErrorAction SilentlyContinue)) {
+                    $allFiles = gsudo Get-ChildItem -Path $pathToCheck -Recurse -File -Force -ErrorAction SilentlyContinue
+                } else {
+                    $allFiles = Get-ChildItem -Path $pathToCheck -Recurse -File -Force -ErrorAction SilentlyContinue
+                }
+
+                $totalFiles = ($allFiles | Measure-Object).Count
+
+                # Filter out excluded files
+                $filteredFiles = $allFiles | Where-Object {
+                    -not (Test-ShouldExclude -itemPath $_.FullName -folderPatterns $excludeFolderPatterns -filePatterns $excludeFilePatterns)
+                }
+
+                $filteredCount = ($filteredFiles | Measure-Object).Count
+
+                # Calculate size with detailed debugging
+                $sizeCalc = $filteredFiles | Measure-Object -Property Length -Sum -ErrorAction SilentlyContinue
+                $sizeInBytes = $sizeCalc.Sum
+
+                # Debug: Check a sample file
+                $sampleFile = $filteredFiles | Select-Object -First 1
+                $sampleInfo = if ($sampleFile) {
+                    "Sample file: $($sampleFile.FullName), Length: $($sampleFile.Length), Type: $($sampleFile.GetType().Name)"
+                } else {
+                    "No sample file available"
+                }
+
+                # Return both size and debug info
+                # Use proper null handling instead of -or which returns boolean
+                $finalSize = if ($sizeInBytes) { [long]$sizeInBytes } else { 0 }
+
+                return @{
+                    Size = $finalSize
+                    TotalFiles = $totalFiles
+                    FilteredFiles = $filteredCount
+                    ExcludedFiles = ($totalFiles - $filteredCount)
+                    SumResult = $sizeInBytes
+                    SampleDebug = $sampleInfo
+                }
             } catch {
                 # Return error info for better handling
                 return @{ Error = $_.Exception.Message; Size = 0 }
             }
-        } -ArgumentList $Path, $needsElevation
+        } -ArgumentList $Path, $needsElevation, $excludeFolders, $excludeFiles
         
         # Wait for job with specified timeout
         if ($sizeJob | Wait-Job -Timeout $TimeoutSeconds) {
             $result = Receive-Job $sizeJob
+            $jobState = $sizeJob.State
+            $jobErrors = $sizeJob.ChildJobs[0].Error
             Remove-Job $sizeJob
-            
+
             # Handle error results from the job
             if ($result -is [hashtable] -and $result.ContainsKey('Error')) {
                 Write-Log "Permission/access error for $Path : $($result.Error)" -Level "WARNING"
                 return 5MB  # Conservative estimate for permission errors
             }
-            
-            return [long]($result -or 0)
+
+            # Handle new hashtable format with debug info
+            if ($result -is [hashtable] -and $result.ContainsKey('Size')) {
+                $finalSize = $result.Size
+                Write-Log "File count for $Path - Total: $($result.TotalFiles), After exclusions: $($result.FilteredFiles), Excluded: $($result.ExcludedFiles)" -Level "DEBUG"
+                if ($result.ContainsKey('SampleDebug')) {
+                    Write-Log "Sample file debug: $($result.SampleDebug)" -Level "DEBUG"
+                }
+                if ($result.ContainsKey('SumResult')) {
+                    $sumType = if ($result.SumResult) { $result.SumResult.GetType().Name } else { 'null' }
+                    Write-Log "Raw Sum result: $($result.SumResult) (Type: $sumType)" -Level "DEBUG"
+                }
+                Write-Log "Calculated size for $Path : $([math]::Round($finalSize / 1MB, 2)) MB" -Level "DEBUG"
+                return $finalSize
+            }
+
+            # Legacy format (single value)
+            $finalSize = if ($result) { [long]$result } else { 0 }
+
+            # Debug logging for 0 results
+            if ($finalSize -eq 0) {
+                Write-Log "Size calculation returned 0 for $Path (Job State: $jobState)" -Level "WARNING"
+                if ($jobErrors.Count -gt 0) {
+                    Write-Log "Job errors: $($jobErrors -join '; ')" -Level "WARNING"
+                }
+            }
+
+            Write-Log "Calculated size for $Path : $([math]::Round($finalSize / 1MB, 2)) MB" -Level "DEBUG"
+            return $finalSize
         } 
         else {
             # Job timed out

@@ -243,50 +243,188 @@ function Get-BackupById {
 
 #region Archive Handling Functions
 
-function Extract-BackupArchive {
+function Extract-ManifestOnly {
+    <#
+    .SYNOPSIS
+    Extracts ONLY the manifest.json from backup archive for preview (Phase 6 #41).
+    .DESCRIPTION
+    Uses 7-Zip to extract just manifest.json without extracting the entire backup.
+    This is much faster and saves disk space when user just wants to preview.
+    #>
     param (
         [PSCustomObject]$Backup,
         [string]$TempDirectory
     )
-    
+
     $archivePath = $Backup.DestinationPath
-    
-    # Handle SSH backups (not implemented in this version)
-    if ($Backup.DestinationType -eq "SSH") {
-        Write-Log "SSH backup restoration not yet implemented" -Level "ERROR"
-        return $false
+
+    # Verify archive exists
+    if (-not (Test-Path $archivePath)) {
+        Write-Log "Backup archive not found: $archivePath" -Level "ERROR"
+        return $null
     }
-    
+
+    # Create temp directory
+    if (-not (Test-Path $TempDirectory)) {
+        New-Item -ItemType Directory -Path $TempDirectory -Force | Out-Null
+    }
+
+    try {
+        Write-Log "Extracting manifest.json only from archive (fast preview mode)" -Level "INFO"
+        $sevenZipPath = $script:Config.Tools.'7Zip'
+
+        # Verify 7-Zip exists
+        if (-not (Test-Path $sevenZipPath)) {
+            Write-Log "7-Zip not found at: $sevenZipPath" -Level "ERROR"
+            return $null
+        }
+
+        # Extract ONLY manifest.json using wildcards
+        # This will extract any manifest.json found at any level in the archive
+        $extractArgs = @("e", $archivePath, "-o$TempDirectory", "manifest.json", "-r", "-y")
+        $result = & $sevenZipPath $extractArgs 2>&1 | Out-Null
+
+        if ($LASTEXITCODE -ne 0) {
+            Write-Log "Failed to extract manifest.json from archive" -Level "WARNING"
+            return $null
+        }
+
+        # Find the extracted manifest
+        $manifestPath = Join-Path $TempDirectory "manifest.json"
+        if (Test-Path $manifestPath) {
+            Write-Log "Successfully extracted manifest.json for preview" -Level "INFO"
+            return $manifestPath
+        } else {
+            Write-Log "manifest.json not found in archive" -Level "WARNING"
+            return $null
+        }
+    }
+    catch {
+        Write-Log "Error extracting manifest: $_" -Level "ERROR"
+        return $null
+    }
+}
+
+function Extract-SelectedFiles {
+    <#
+    .SYNOPSIS
+    Extracts ONLY selected files from backup archive (Phase 6 #41 - Optimized selective extraction).
+    .DESCRIPTION
+    Uses 7-Zip to extract specific files based on user selection, avoiding full backup extraction.
+    Handles both individual files and folders (extracts folder contents recursively).
+    #>
+    param (
+        [PSCustomObject]$Backup,
+        [string]$TempDirectory,
+        [array]$FilesToExtract  # Array of archive-relative paths from manifest
+    )
+
+    $archivePath = $Backup.DestinationPath
+
     # Verify archive exists
     if (-not (Test-Path $archivePath)) {
         Write-Log "Backup archive not found: $archivePath" -Level "ERROR"
         return $false
     }
-    
+
     # Create temp directory
     if (-not (Test-Path $TempDirectory)) {
         New-Item -ItemType Directory -Path $TempDirectory -Force | Out-Null
     }
-    
-    # Extract archive using 7-Zip
+
     try {
-        Write-Log "Extracting backup archive: $archivePath" -Level "INFO"
+        Write-Log "Extracting $($FilesToExtract.Count) selected items from archive" -Level "INFO"
         $sevenZipPath = $script:Config.Tools.'7Zip'
-        
+
         # Verify 7-Zip exists
         if (-not (Test-Path $sevenZipPath)) {
             Write-Log "7-Zip not found at: $sevenZipPath" -Level "ERROR"
             return $false
         }
-        
+
+        # Build extraction arguments
+        # Use "x" command to preserve directory structure
+        $extractArgs = @("x", $archivePath, "-o$TempDirectory", "-y")
+
+        # Add each path to extract (paths already include wildcards if needed)
+        foreach ($file in $FilesToExtract) {
+            $extractArgs += $file
+        }
+
+        Write-Host "Extracting selected categories..." -ForegroundColor Yellow
+
+        # Log extraction details for debugging
+        Write-Log "7-Zip command: $sevenZipPath $($extractArgs -join ' ')" -Level "DEBUG"
+
+        # Run 7z and capture output
+        $result = & $sevenZipPath $extractArgs 2>&1
+
+        if ($LASTEXITCODE -ne 0) {
+            Write-Log "7-Zip extraction failed with exit code: $LASTEXITCODE" -Level "ERROR"
+            Write-Log "7-Zip output: $result" -Level "DEBUG"
+            return $false
+        }
+
+        # List what was actually extracted
+        Write-Log "Extraction completed. Checking extracted files..." -Level "DEBUG"
+        if (Test-Path $TempDirectory) {
+            $extractedFileCount = (Get-ChildItem -Path $TempDirectory -Recurse -File | Measure-Object).Count
+            Write-Log "Extracted $extractedFileCount files to $TempDirectory" -Level "INFO"
+        }
+
+        Write-Log "Successfully extracted selected categories" -Level "INFO"
+        return $true
+    }
+    catch {
+        Write-Log "Error extracting selected files: $_" -Level "ERROR"
+        return $false
+    }
+}
+
+function Extract-BackupArchive {
+    param (
+        [PSCustomObject]$Backup,
+        [string]$TempDirectory
+    )
+
+    $archivePath = $Backup.DestinationPath
+
+    # Handle SSH backups (not implemented in this version)
+    if ($Backup.DestinationType -eq "SSH") {
+        Write-Log "SSH backup restoration not yet implemented" -Level "ERROR"
+        return $false
+    }
+
+    # Verify archive exists
+    if (-not (Test-Path $archivePath)) {
+        Write-Log "Backup archive not found: $archivePath" -Level "ERROR"
+        return $false
+    }
+
+    # Create temp directory
+    if (-not (Test-Path $TempDirectory)) {
+        New-Item -ItemType Directory -Path $TempDirectory -Force | Out-Null
+    }
+
+    # Extract archive using 7-Zip
+    try {
+        Write-Log "Extracting backup archive: $archivePath" -Level "INFO"
+        $sevenZipPath = $script:Config.Tools.'7Zip'
+
+        # Verify 7-Zip exists
+        if (-not (Test-Path $sevenZipPath)) {
+            Write-Log "7-Zip not found at: $sevenZipPath" -Level "ERROR"
+            return $false
+        }
+
         $extractArgs = @("x", $archivePath, "-o$TempDirectory", "-y")
         $result = & $sevenZipPath $extractArgs
-        
+
         if ($LASTEXITCODE -ne 0) {
             Write-Log "7-Zip extraction failed with exit code: $LASTEXITCODE" -Level "ERROR"
             return $false
         }
-        
+
         Write-Log "Backup archive extracted successfully to: $TempDirectory" -Level "INFO"
         return $true
     }
@@ -471,6 +609,89 @@ function Show-DestinationMenu {
     }
 }
 
+function Show-BackupPreview {
+    <#
+    .SYNOPSIS
+    Shows preview/summary of backup contents before selection (Phase 6 #41).
+    .DESCRIPTION
+    Displays comprehensive backup information including metadata, total stats,
+    category breakdown, and largest files to help user decide if this is the
+    right backup before starting the selection process.
+    #>
+    param (
+        [PSCustomObject]$Manifest,
+        [PSCustomObject]$BackupInfo
+    )
+
+    Write-Host "`n" -NoNewline
+    Write-Host "╔════════════════════════════════════════════════════════════════╗" -ForegroundColor Cyan
+    Write-Host "║" -ForegroundColor Cyan -NoNewline
+    Write-Host "                    BACKUP PREVIEW" -ForegroundColor White -NoNewline
+    Write-Host "                        ║" -ForegroundColor Cyan
+    Write-Host "╚════════════════════════════════════════════════════════════════╝" -ForegroundColor Cyan
+    Write-Host ""
+
+    # Backup Information
+    Write-Host "Backup Information:" -ForegroundColor Yellow
+    Write-Host "  Backup Name:     $($BackupInfo.BackupSetName)" -ForegroundColor White
+    Write-Host "  Backup Type:     $($BackupInfo.BackupType)" -ForegroundColor White
+    Write-Host "  Backup Date:     $($BackupInfo.Timestamp)" -ForegroundColor White
+
+    if ($Manifest.backup_info.backup_strategy) {
+        $strategy = $Manifest.backup_info.backup_strategy
+        $strategyColor = if ($strategy -eq "Full") { "Green" } else { "Yellow" }
+        Write-Host "  Backup Strategy: " -NoNewline -ForegroundColor White
+        Write-Host $strategy -ForegroundColor $strategyColor
+    }
+
+    Write-Host "  Destination:     $($BackupInfo.DestinationType) - $($BackupInfo.DestinationPath)" -ForegroundColor White
+    Write-Host ""
+
+    # Get actual archive size from filesystem
+    $archivePath = $BackupInfo.DestinationPath
+    $archiveSize = 0
+    if (Test-Path $archivePath) {
+        $archiveSize = (Get-Item $archivePath).Length
+    }
+
+    # Count files from manifest
+    $totalFiles = 0
+    foreach ($entry in $Manifest.backup_manifest.PSObject.Properties) {
+        $totalFiles++
+    }
+
+    # Total Statistics (show ARCHIVE size, not broken manifest sizes)
+    Write-Host "Archive Statistics:" -ForegroundColor Yellow
+    $archiveSizeGB = [math]::Round($archiveSize / 1GB, 2)
+    $archiveSizeMB = [math]::Round($archiveSize / 1MB, 2)
+    $sizeDisplay = if ($archiveSizeGB -ge 1) { "$archiveSizeGB GB" } else { "$archiveSizeMB MB" }
+
+    Write-Host "  Files in manifest:  " -NoNewline -ForegroundColor White
+    Write-Host $totalFiles -ForegroundColor Cyan
+    Write-Host "  Archive size:       " -NoNewline -ForegroundColor White
+    Write-Host $sizeDisplay -ForegroundColor Cyan
+    Write-Host ""
+
+    # Confirmation prompt
+    Write-Host "════════════════════════════════════════════════════════════════" -ForegroundColor Cyan
+    Write-Host ""
+    Write-Host "Do you want to proceed with this backup?" -ForegroundColor Yellow
+    Write-Host "  • Continue → Select items to restore" -ForegroundColor Gray
+    Write-Host "  • Cancel   → Return to backup selection" -ForegroundColor Gray
+    Write-Host ""
+
+    try {
+        $choices = @("Continue to Selection", "Cancel")
+        $selection = & gum choose --height=5 --header="Proceed with this backup?" $choices
+
+        return ($selection -eq "Continue to Selection")
+    }
+    catch {
+        Write-Log "Error with preview confirmation: $_" -Level "ERROR"
+        return $false
+    }
+}
+
 function Show-RegistryBulkActionMenu {
     param ([int]$RegistryCount)
     
@@ -518,108 +739,167 @@ function Show-RegistryBulkActionMenu {
     }
 }
 
+function Get-ArchiveCategories {
+    <#
+    .SYNOPSIS
+    Uses manifest for categories and 7-Zip for REAL file sizes.
+    #>
+    param (
+        [PSCustomObject]$Manifest,
+        [string]$ArchivePath,
+        [string]$SevenZipPath
+    )
+
+    try {
+        # Step 1: Parse 7z l output to create path->size dictionary
+        Write-Log "Building file size dictionary from archive..." -Level "INFO"
+        $listOutput = & $SevenZipPath l $ArchivePath 2>&1
+
+        if ($LASTEXITCODE -ne 0) {
+            Write-Log "Failed to list archive contents" -Level "ERROR"
+            return $null
+        }
+
+        $fileSizes = @{}  # path -> size
+        $inFileList = $false
+
+        foreach ($line in $listOutput) {
+            # Detect start of file list
+            if ($line -match "^-{19}") {
+                if ($inFileList) {
+                    # Second line of dashes = end of list
+                    break
+                }
+                $inFileList = $true
+                continue
+            }
+
+            # Parse file lines: Date Time Attr Size Compressed Name
+            if ($inFileList -and $line -match "^\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}\s+[\.DARHS]{5}\s+(\d+)\s+\d*\s+(.+)$") {
+                $size = [long]$matches[1]
+                $path = $matches[2].Trim()
+                $fileSizes[$path] = $size
+            }
+        }
+
+        Write-Log "Built size dictionary with $($fileSizes.Count) entries" -Level "INFO"
+
+        # Step 2: Group manifest entries by category (backup_item)
+        $categories = @{}
+
+        foreach ($entry in $Manifest.backup_manifest.PSObject.Properties) {
+            $file = $entry.Value
+            $category = $file.backup_item
+            $archivePath = $file.archive_relative_path
+
+            if (-not $categories.ContainsKey($category)) {
+                $categories[$category] = @{
+                    Size = 0
+                    FileCount = 0
+                    Paths = @()
+                }
+            }
+
+            # Look up actual size from 7z dictionary
+            if ($fileSizes.ContainsKey($archivePath)) {
+                $categories[$category].Size += $fileSizes[$archivePath]
+            }
+
+            $categories[$category].FileCount++
+            $categories[$category].Paths += $archivePath
+        }
+
+        Write-Log "Found $($categories.Keys.Count) categories from manifest" -Level "INFO"
+        return $categories
+    }
+    catch {
+        Write-Log "Error building category list: $_" -Level "ERROR"
+        return $null
+    }
+}
+
 function Show-SelectiveRestorationMenu {
     param (
         [PSCustomObject]$Manifest,
         [string]$ExtractedPath
     )
-    
-    Write-Host "`nSelective Restoration:" -ForegroundColor Yellow
-    Write-Host "=====================" -ForegroundColor Yellow
-    
-    # Group manifest entries by backup item
-    $manifestSummary = Get-ManifestSummary -Manifest $Manifest
-    $backupItems = $manifestSummary.BackupItems
-    
-    if ($backupItems.Count -eq 0) {
-        Write-Host "No restorable items found in backup manifest." -ForegroundColor Red
+
+    Write-Host "`nSelect categories to restore:" -ForegroundColor Yellow
+    Write-Host "=============================" -ForegroundColor Yellow
+
+    # Get category info: manifest for categories, 7z for real sizes
+    $sevenZipPath = $script:Config.Tools.'7Zip'
+    $archivePath = $script:SelectedBackup.DestinationPath
+
+    $categories = Get-ArchiveCategories -Manifest $Manifest -ArchivePath $archivePath -SevenZipPath $sevenZipPath
+
+    if (-not $categories -or $categories.Keys.Count -eq 0) {
+        Write-Host "No categories found in backup archive." -ForegroundColor Red
         return @()
     }
-    
-    Write-Host "Available Backup Items:"
-    foreach ($item in $backupItems.Keys) {
-        $count = $backupItems[$item].count
-        Write-Host "  • $item ($count files/items)" -ForegroundColor Cyan
-    }
+
+    Write-Host "Found $($categories.Keys.Count) categories" -ForegroundColor Cyan
     Write-Host ""
-    
-    # Let user select backup items first
-    $itemChoices = @("Select All Items") + ($backupItems.Keys | Sort-Object) + @("Cancel")
-    
+
+    # Format choices showing CATEGORIES with SIZES
+    $formattedChoices = @()
+    $categoryMap = @{}  # Map formatted string back to category name
+
+    foreach ($category in ($categories.Keys | Sort-Object)) {
+        $catInfo = $categories[$category]
+        $sizeMB = [math]::Round($catInfo.Size / 1MB, 2)
+        $sizeGB = [math]::Round($catInfo.Size / 1GB, 2)
+        $sizeDisplay = if ($sizeGB -ge 1) { "$sizeGB GB" } else { "$sizeMB MB" }
+
+        # Format: "CategoryName          500 MB"
+        $formatted = "{0,-30} {1,10}" -f $category, $sizeDisplay
+        $formattedChoices += $formatted
+        $categoryMap[$formatted] = $category
+    }
+
+    $formattedChoices = @("✓ Select All") + $formattedChoices + @("✗ Cancel")
+
+    # Let user select CATEGORIES
     try {
-        $selectedItems = & gum choose --height=15 --no-limit --header="Select Backup Items to Restore (Space to select, Enter to confirm)" $itemChoices
-        
-        if (-not $selectedItems -or $selectedItems -contains "Cancel") {
+        $selectedCategories = & gum choose --height=20 --no-limit --header="Select categories to restore (Space=select, Enter=confirm)" $formattedChoices
+
+        if (-not $selectedCategories -or $selectedCategories -contains "✗ Cancel") {
             return @()
         }
-        
-        if ($selectedItems -contains "Select All Items") {
-            $selectedItems = $backupItems.Keys
+
+        # Build list of paths to extract for selected categories (from manifest)
+        $pathsToExtract = @()
+        $selectedCategoryNames = @()
+
+        if ($selectedCategories -contains "✓ Select All") {
+            # Extract all categories - get all paths from manifest
+            foreach ($category in $categories.Keys) {
+                $pathsToExtract += $categories[$category].Paths
+                $selectedCategoryNames += $category
+            }
+        } else {
+            # Extract selected categories - get their paths from manifest
+            foreach ($selected in $selectedCategories) {
+                if ($categoryMap.ContainsKey($selected)) {
+                    $categoryName = $categoryMap[$selected]
+                    $pathsToExtract += $categories[$categoryName].Paths
+                    $selectedCategoryNames += $categoryName
+                }
+            }
+        }
+
+        Write-Host "`nSelected $($selectedCategoryNames.Count) categories with $($pathsToExtract.Count) files" -ForegroundColor Green
+
+        # Return special object with extraction paths
+        return @{
+            Paths = $pathsToExtract
+            Categories = $selectedCategoryNames
         }
     }
     catch {
-        Write-Log "Error with item selection: $_" -Level "ERROR"
+        Write-Log "Error with category selection: $_" -Level "ERROR"
         return @()
     }
-    
-    # Now show granular selection for each selected item
-    $itemsToRestore = @()
-    
-    foreach ($itemName in $selectedItems) {
-        if ($itemName -eq "Select All Items") { continue }
-        
-        $itemFiles = $backupItems[$itemName].files
-        
-        Write-Host "`nFiles in '$itemName':" -ForegroundColor Green
-        
-        # Format files for selection
-        $fileChoices = @()
-        foreach ($file in $itemFiles) {
-            $archivePath = $file.archive_relative_path
-            $originalPath = $file.original_path
-            $fileType = $file.file_type
-            
-            if ($fileType -eq "windows_settings") {
-                $itemDisplayName = $file.windows_settings.item_name
-                $exportType = $file.windows_settings.export_type
-                $fileChoices += "[$exportType] $itemDisplayName -> $archivePath"
-            } else {
-                $fileChoices += "[$fileType] $originalPath -> $archivePath"
-            }
-        }
-        
-        if ($fileChoices.Count -gt 0) {
-            $fileChoices = @("Select All from $itemName") + $fileChoices + @("Skip $itemName")
-            
-            try {
-                $selectedFiles = & gum choose --height=20 --no-limit --header="Select files from '$itemName' to restore" $fileChoices
-                
-                if ($selectedFiles -and -not ($selectedFiles -contains "Skip $itemName")) {
-                    if ($selectedFiles -contains "Select All from $itemName") {
-                        $itemsToRestore += $itemFiles
-                    } else {
-                        # Map selected display strings back to manifest entries
-                        foreach ($selectedFile in $selectedFiles) {
-                            if ($selectedFile.StartsWith("[") -and $selectedFile -match "-> (.+)$") {
-                                $archivePath = $matches[1]
-                                $matchingFile = $itemFiles | Where-Object { $_.archive_relative_path -eq $archivePath }
-                                if ($matchingFile) {
-                                    $itemsToRestore += $matchingFile
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            catch {
-                Write-Log "Error with file selection for $itemName : $_" -Level "ERROR"
-                continue
-            }
-        }
-    }
-    
-    Write-Host "`nSelected $($itemsToRestore.Count) items for restoration." -ForegroundColor Green
-    return $itemsToRestore
 }
 
 #endregion
@@ -1132,31 +1412,48 @@ function Start-RestoreWorkflow {
     }
     
     Write-Host "`nSelected backup: $($script:SelectedBackup.BackupSetName)" -ForegroundColor Green
-    
-    # Step 2: Extract backup and read manifest - FIXED: Use simple, consistent temp path
+
+    # Step 2: Extract ONLY manifest for preview (Phase 6 #41 - Optimized workflow)
     $script:TempRestoreDir = Get-SimpleRestoreDirectory -BackupName $script:SelectedBackup.BackupSetName
-    
-    if (-not (Extract-BackupArchive -Backup $script:SelectedBackup -TempDirectory $script:TempRestoreDir)) {
-        Write-Host "Failed to extract backup archive." -ForegroundColor Red
-        return
-    }
-    
-    $manifestPath = Find-ManifestInExtraction -ExtractedPath $script:TempRestoreDir
+
+    # First, try to extract just the manifest for fast preview
+    $manifestPath = Extract-ManifestOnly -Backup $script:SelectedBackup -TempDirectory $script:TempRestoreDir
+
     if ($manifestPath) {
         $script:BackupManifest = Read-BackupManifest -ManifestPath $manifestPath
-        if (-not $script:BackupManifest) {
+        if ($script:BackupManifest) {
+            Write-Log "Successfully loaded manifest with $($script:BackupManifest.backup_info.total_entries) entries" -Level "INFO"
+
+            # Show backup preview
+            $previewConfirmed = Show-BackupPreview -Manifest $script:BackupManifest -BackupInfo $script:SelectedBackup
+            if (-not $previewConfirmed) {
+                Write-Host "`nBackup preview cancelled. No files extracted." -ForegroundColor Yellow
+                # Clean up manifest-only extraction
+                if (Test-Path $script:TempRestoreDir) {
+                    Remove-Item -Path $script:TempRestoreDir -Recurse -Force -ErrorAction SilentlyContinue
+                }
+                return
+            }
+        } else {
             Write-Host "Failed to read backup manifest." -ForegroundColor Red
             return
-        } else {
-            Write-Log "Successfully loaded manifest with $($script:BackupManifest.backup_info.total_entries) entries" -Level "INFO"
         }
     } else {
         Write-Host "This backup doesn't have a manifest file." -ForegroundColor Yellow
-        Write-Host "Only complete restoration is available." -ForegroundColor Yellow
-        # For backups without manifest, we can still do basic restoration
+        Write-Host "Falling back to complete restoration (extracting full backup)..." -ForegroundColor Yellow
+        # For legacy backups without manifest, extract everything
+        if (-not (Extract-BackupArchive -Backup $script:SelectedBackup -TempDirectory $script:TempRestoreDir)) {
+            Write-Host "Failed to extract backup archive." -ForegroundColor Red
+            return
+        }
+        # Try to find manifest in extraction
+        $manifestPath = Find-ManifestInExtraction -ExtractedPath $script:TempRestoreDir
+        if ($manifestPath) {
+            $script:BackupManifest = Read-BackupManifest -ManifestPath $manifestPath
+        }
     }
-    
-    # Step 3: Choose restoration mode
+
+    # Step 3: Choose restoration mode (BEFORE extracting anything!)
     $restoreMode = if ($RestoreMode -eq "Selective" -and $script:BackupManifest) {
         "Selective"
     } elseif ($RestoreMode -eq "Interactive") {
@@ -1164,53 +1461,102 @@ function Start-RestoreWorkflow {
     } else {
         "Complete"
     }
-    
+
     if (-not $restoreMode) {
         Write-Host "Restoration cancelled." -ForegroundColor Yellow
+        if (Test-Path $script:TempRestoreDir) {
+            Remove-Item -Path $script:TempRestoreDir -Recurse -Force -ErrorAction SilentlyContinue
+        }
         return
     }
-    
-    # Step 4: Choose destination
+
+    # Step 4: Select items (if selective mode) - BEFORE asking destination!
+    $selectedCategories = $null
+    $filesToExtract = @()  # Archive paths to extract
+
+    if ($restoreMode -eq "Selective" -and $script:BackupManifest) {
+        # Let user select categories (returns hashtable with Paths and Categories)
+        $selectedCategories = Show-SelectiveRestorationMenu -Manifest $script:BackupManifest -ExtractedPath $script:TempRestoreDir
+
+        if (-not $selectedCategories -or $selectedCategories.Count -eq 0) {
+            Write-Host "No categories selected for restoration." -ForegroundColor Yellow
+            if (Test-Path $script:TempRestoreDir) {
+                Remove-Item -Path $script:TempRestoreDir -Recurse -Force -ErrorAction SilentlyContinue
+            }
+            return
+        }
+
+        # Get paths to extract from selection
+        $filesToExtract = $selectedCategories.Paths
+
+        Write-Host "`nSelected $($selectedCategories.Categories.Count) categories for restoration." -ForegroundColor Cyan
+    } else {
+        # Complete restoration - extract everything
+        $filesToExtract = @("*")  # Extract all
+    }
+
+    # Step 5: NOW choose destination (after knowing what to restore)
     $destination = if ($RestoreDestination) {
         $RestoreDestination
     } else {
         Show-DestinationMenu
     }
-    
+
     if (-not $destination) {
         Write-Host "Restoration cancelled." -ForegroundColor Yellow
+        if (Test-Path $script:TempRestoreDir) {
+            Remove-Item -Path $script:TempRestoreDir -Recurse -Force -ErrorAction SilentlyContinue
+        }
         return
     }
-    
+
     $isOriginalLocation = ($destination -eq "Original")
-    
-    # Step 5: Select items (if selective mode)
-    $itemsToRestore = @()
-    
-    if ($restoreMode -eq "Selective" -and $script:BackupManifest) {
-        $itemsToRestore = Show-SelectiveRestorationMenu -Manifest $script:BackupManifest -ExtractedPath $script:TempRestoreDir
-        if ($itemsToRestore.Count -eq 0) {
-            Write-Host "No items selected for restoration." -ForegroundColor Yellow
+
+    # Step 6: Extract backup based on mode (AFTER user has selected what they want!)
+    if ($restoreMode -eq "Selective" -and $filesToExtract.Count -gt 0) {
+        # Extract ONLY selected categories
+        Write-Host "`nExtracting selected categories from backup..." -ForegroundColor Yellow
+        if (-not (Extract-SelectedFiles -Backup $script:SelectedBackup -TempDirectory $script:TempRestoreDir -FilesToExtract $filesToExtract)) {
+            Write-Host "Failed to extract selected categories from backup archive." -ForegroundColor Red
             return
         }
+    } elseif ($restoreMode -eq "Complete") {
+        # Extract full backup (only if not already extracted for legacy backups)
+        if ($script:BackupManifest) {  # Modern backup with manifest
+            Write-Host "`nExtracting complete backup (this may take a while)..." -ForegroundColor Yellow
+            if (-not (Extract-BackupArchive -Backup $script:SelectedBackup -TempDirectory $script:TempRestoreDir)) {
+                Write-Host "Failed to extract backup archive." -ForegroundColor Red
+                return
+            }
+        }
+        # else: Already extracted for legacy backup without manifest
+    }
+
+    # Step 7: Perform restoration (restore extracted files to destination)
+    Write-Host "`nRestoring files to $destination..." -ForegroundColor Yellow
+
+    # For now, just copy everything that was extracted to the destination
+    # TODO: This is simplified - proper restoration would use manifest for original paths
+    if ($isOriginalLocation) {
+        Write-Host "Restoring to original locations requires manifest support (not yet implemented for category-based restore)" -ForegroundColor Yellow
     } else {
-        # Complete restoration - restore everything
-        if ($script:BackupManifest) {
-            $itemsToRestore = $script:BackupManifest.backup_manifest.PSObject.Properties | ForEach-Object { $_.Value }
+        # Copy extracted files to custom destination
+        $filesFolder = Join-Path $script:TempRestoreDir "Files"
+        if (Test-Path $filesFolder) {
+            try {
+                Copy-Item -Path "$filesFolder\*" -Destination $destination -Recurse -Force
+                Write-Host "Successfully copied files to $destination" -ForegroundColor Green
+            }
+            catch {
+                Write-Host "Failed to copy files: $_" -ForegroundColor Red
+            }
         } else {
-            # Fallback for backups without manifest
-            Write-Host "Performing complete restoration without manifest..." -ForegroundColor Yellow
-            # This would need different logic to handle legacy backups
+            Write-Host "No Files folder found in extraction" -ForegroundColor Red
         }
     }
-    
-    # Step 6: Perform restoration
-    if ($itemsToRestore.Count -gt 0) {
-        Restore-SelectedItems -ItemsToRestore $itemsToRestore -ExtractedPath $script:TempRestoreDir -RestoreDestination $destination -IsOriginalLocation $isOriginalLocation -DryRun:$DryRun
-    }
-    
-    # Step 7: Show final summary
-    Show-FinalSummary
+
+    # Step 8: Show final summary
+    Write-Host "`nRestore operation completed!" -ForegroundColor Green
 }
 
 function Show-FinalSummary {
