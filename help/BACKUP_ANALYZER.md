@@ -315,9 +315,10 @@ Show-BackupAnalysisReport -IncludeDetailed | Tee-Object -FilePath "backup_report
 
 ## Limitations
 
-1. **Database Statistics**: Currently, `size_mb` and `file_count` in the database are 0 (this is a known issue in the backup script that needs to be fixed)
-2. **Manifest Required**: Analysis functions require manifest.json in backup ZIPs
-3. **Memory Usage**: Analyzing many large backups may consume significant memory
+1. **Database Statistics**: For existing backups, `size_mb` and `file_count` in the database are 0. New backups created after the manifest fix will populate these correctly.
+2. **ZIP Reading Performance**: Analyzer reads actual ZIP contents using .NET ZipArchive, which takes 2-5 seconds per backup
+3. **Memory Usage**: Analyzing many large backups (60k+ files each) may consume significant memory
+4. **Old Manifests**: Backups created before the manifest fix only track top-level paths (25 entries), not all files (60k+ entries)
 
 ---
 

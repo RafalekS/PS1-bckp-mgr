@@ -53,15 +53,24 @@
 
 ## Pending Features (Phase 6 - User Experience)
 
-### #40 - Backup Analysis & Statistics Tool (IN PROGRESS)
+### #40 - Backup Analysis & Statistics Tool (COMPLETE ✓)
 Analyze existing backups from database and display comprehensive statistics:
-- Largest files across all backups
-- Largest folders/directories
-- Folders with most file count
-- Backup size trends over time
-- Most frequently backed up paths
-- Storage usage breakdown by category
-- File type distribution analysis
+- ✅ Largest files across all backups
+- ✅ Largest folders/directories
+- ✅ Folders with most file count
+- ✅ Backup size trends over time
+- ✅ Storage usage breakdown by category
+- ✅ File type distribution analysis
+- ✅ Comprehensive analysis reports
+- ✅ Individual backup analysis with actual file counts
+- ✅ Integrated into backup_mgr.ps1 main menu
+
+**Implementation Notes:**
+- Created BackupAnalyzer.ps1 module with 9 analysis functions
+- Reads actual ZIP contents using .NET ZipArchive (not just manifest)
+- Shows real file counts (60k+ files) instead of broken manifest data (25 files)
+- Fixed manifest population to track all files recursively (Add-FolderFilesToManifest)
+- See help/BACKUP_ANALYZER.md for complete documentation
 
 ### #41 - Interactive Restore Preview
 Show preview with file count, total size, largest files before restoration
