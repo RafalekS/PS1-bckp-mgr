@@ -438,11 +438,11 @@ function Get-LargestFolders {
     $folderStats = @{}
 
     foreach ($backup in $backups) {
-        Write-Host "  Reading manifest from: $($backup.Name)..." -ForegroundColor Gray
+        Write-Host "  Reading ZIP contents from: $($backup.Name)..." -ForegroundColor Gray
 
-        $manifest = Get-BackupManifest -BackupPath $backup.DestinationPath
-        if ($manifest) {
-            $files = Get-ManifestFileData -Manifest $manifest
+        $files = Get-ZipFileList -BackupPath $backup.DestinationPath
+        if ($files.Count -gt 0) {
+            Write-Host "    Found $($files.Count) files" -ForegroundColor Gray
 
             foreach ($file in $files) {
                 $folder = $file.Directory
@@ -451,17 +451,17 @@ function Get-LargestFolders {
                     $folderStats[$folder] = @{
                         TotalSize = 0
                         FileCount = 0
-                        BackupItems = @{}
+                        Categories = @{}
                     }
                 }
 
                 $folderStats[$folder].TotalSize += $file.SizeBytes
                 $folderStats[$folder].FileCount++
 
-                if (-not $folderStats[$folder].BackupItems.ContainsKey($file.BackupItem)) {
-                    $folderStats[$folder].BackupItems[$file.BackupItem] = 0
+                if (-not $folderStats[$folder].Categories.ContainsKey($file.Category)) {
+                    $folderStats[$folder].Categories[$file.Category] = 0
                 }
-                $folderStats[$folder].BackupItems[$file.BackupItem]++
+                $folderStats[$folder].Categories[$file.Category]++
             }
         }
     }
@@ -478,7 +478,7 @@ function Get-LargestFolders {
     Write-Host "`nTop $Top Largest Folders:" -ForegroundColor Cyan
 
     $results = $largestFolders | ForEach-Object {
-        $categories = ($_.Value.BackupItems.Keys | Sort-Object) -join ', '
+        $categories = ($_.Value.Categories.Keys | Sort-Object) -join ', '
         [PSCustomObject]@{
             'Size (GB)' = "{0:N2}" -f ($_.Value.TotalSize / 1GB)
             'Size (MB)' = "{0:N2}" -f ($_.Value.TotalSize / 1MB)
@@ -530,11 +530,11 @@ function Get-FolderFileCount {
     $folderStats = @{}
 
     foreach ($backup in $backups) {
-        Write-Host "  Reading manifest from: $($backup.Name)..." -ForegroundColor Gray
+        Write-Host "  Reading ZIP contents from: $($backup.Name)..." -ForegroundColor Gray
 
-        $manifest = Get-BackupManifest -BackupPath $backup.DestinationPath
-        if ($manifest) {
-            $files = Get-ManifestFileData -Manifest $manifest
+        $files = Get-ZipFileList -BackupPath $backup.DestinationPath
+        if ($files.Count -gt 0) {
+            Write-Host "    Found $($files.Count) files" -ForegroundColor Gray
 
             foreach ($file in $files) {
                 $folder = $file.Directory
@@ -694,11 +694,11 @@ function Get-FileTypeDistribution {
     $extensionStats = @{}
 
     foreach ($backup in $backups) {
-        Write-Host "  Reading manifest from: $($backup.Name)..." -ForegroundColor Gray
+        Write-Host "  Reading ZIP contents from: $($backup.Name)..." -ForegroundColor Gray
 
-        $manifest = Get-BackupManifest -BackupPath $backup.DestinationPath
-        if ($manifest) {
-            $files = Get-ManifestFileData -Manifest $manifest
+        $files = Get-ZipFileList -BackupPath $backup.DestinationPath
+        if ($files.Count -gt 0) {
+            Write-Host "    Found $($files.Count) files" -ForegroundColor Gray
 
             foreach ($file in $files) {
                 $ext = if ($file.FileExtension) { $file.FileExtension } else { "(no extension)" }
