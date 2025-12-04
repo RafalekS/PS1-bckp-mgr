@@ -738,28 +738,86 @@ function Show-BackupAnalysisReport {
     Write-Host "`n╔════════════════════════════════════════════════════════════╗" -ForegroundColor Cyan
     Write-Host "║         COMPREHENSIVE BACKUP ANALYSIS REPORT              ║" -ForegroundColor Cyan
     Write-Host "╚════════════════════════════════════════════════════════════╝" -ForegroundColor Cyan
+    Write-Host ""
 
-    # Overall statistics
-    Get-BackupStatistics -RecentCount 10
+    if ($BackupId -gt 0) {
+        # Individual backup analysis - show ACTUAL file info
+        $backup = Get-AllBackups | Where-Object { $_.Id -eq $BackupId }
 
-    # Trends
-    Get-BackupTrends -RecentCount 20
+        if (-not $backup) {
+            Write-Host "Backup ID $BackupId not found!" -ForegroundColor Red
+            return
+        }
 
-    # Category breakdown
-    Get-CategoryBreakdown -BackupId $BackupId
+        Write-Host "=== BACKUP INFORMATION ===" -ForegroundColor Cyan
+        Write-Host "ID:          $($backup.Id)" -ForegroundColor White
+        Write-Host "Name:        $($backup.Name)" -ForegroundColor White
+        Write-Host "Type:        $($backup.Type)" -ForegroundColor White
+        Write-Host "Date:        $($backup.Timestamp)" -ForegroundColor White
+        Write-Host "Location:    $($backup.DestinationPath)" -ForegroundColor White
 
-    if ($IncludeDetailed) {
-        # File type distribution
-        Get-FileTypeDistribution -Top 15 -BackupId $BackupId
+        # Get ACTUAL archive file size
+        if (Test-Path $backup.DestinationPath) {
+            $fileInfo = Get-Item $backup.DestinationPath
+            $sizeGB = [math]::Round($fileInfo.Length / 1GB, 2)
+            $sizeMB = [math]::Round($fileInfo.Length / 1MB, 2)
+            Write-Host "Archive Size: " -NoNewline -ForegroundColor White
+            Write-Host "$sizeGB GB ($sizeMB MB)" -ForegroundColor Green
+        } else {
+            Write-Host "Archive Size: File not found!" -ForegroundColor Red
+        }
+        Write-Host ""
 
-        # Largest files
-        Get-LargestFiles -Top 15 -BackupId $BackupId
+        # Get manifest stats
+        Write-Host "Reading backup manifest..." -ForegroundColor Gray
+        $manifest = Get-BackupManifest -BackupPath $backup.DestinationPath
 
-        # Largest folders
-        Get-LargestFolders -Top 15 -BackupId $BackupId
+        if ($manifest) {
+            $files = Get-ManifestFileData -Manifest $manifest
+            $totalFiles = $files.Count
+            $totalSize = ($files | Measure-Object -Property SizeBytes -Sum).Sum
+            $totalSizeGB = [math]::Round($totalSize / 1GB, 2)
 
-        # Folders with most files
-        Get-FolderFileCount -Top 15 -BackupId $BackupId
+            Write-Host "Total Files:  " -NoNewline -ForegroundColor White
+            Write-Host "$totalFiles files" -ForegroundColor Green
+            Write-Host "Total Size:   " -NoNewline -ForegroundColor White
+            Write-Host "$totalSizeGB GB (uncompressed)" -ForegroundColor Green
+
+            # Calculate categories
+            $categories = $files | Group-Object BackupItem | Measure-Object
+            Write-Host "Categories:   " -NoNewline -ForegroundColor White
+            Write-Host "$($categories.Count) categories" -ForegroundColor Green
+        }
+        Write-Host ""
+
+        # Category breakdown for THIS backup
+        Get-CategoryBreakdown -BackupId $BackupId
+
+        if ($IncludeDetailed) {
+            # File type distribution
+            Get-FileTypeDistribution -Top 15 -BackupId $BackupId
+
+            # Largest files
+            Get-LargestFiles -Top 15 -BackupId $BackupId
+
+            # Largest folders
+            Get-LargestFolders -Top 15 -BackupId $BackupId
+
+            # Folders with most files
+            Get-FolderFileCount -Top 15 -BackupId $BackupId
+        }
+    } else {
+        # Aggregate analysis across multiple backups
+        Get-BackupStatistics -RecentCount 10
+        Get-BackupTrends -RecentCount 20
+        Get-CategoryBreakdown -BackupId 0
+
+        if ($IncludeDetailed) {
+            Get-FileTypeDistribution -Top 15 -BackupId 0
+            Get-LargestFiles -Top 15 -BackupId 0
+            Get-LargestFolders -Top 15 -BackupId 0
+            Get-FolderFileCount -Top 15 -BackupId 0
+        }
     }
 
     Write-Host "`n╔════════════════════════════════════════════════════════════╗" -ForegroundColor Cyan
