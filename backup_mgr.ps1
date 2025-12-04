@@ -521,74 +521,111 @@ function Invoke-AnalyzeOperation {
     Write-Host "║              BACKUP ANALYSIS & STATISTICS                 ║" -ForegroundColor Cyan
     Write-Host "╚════════════════════════════════════════════════════════════╝" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "Analyze your backup history and get insights into:" -ForegroundColor Gray
-    Write-Host "• Overall statistics and trends" -ForegroundColor Gray
-    Write-Host "• Largest files and folders" -ForegroundColor Gray
-    Write-Host "• Storage usage by category and file type" -ForegroundColor Gray
-    Write-Host "• Backup size trends over time" -ForegroundColor Gray
+
+    # First, let user choose between individual backup analysis or aggregate analysis
+    $analysisMode = gum choose --height=8 --header "Select Analysis Mode" "Analyze Specific Backup" "Overall Statistics & Trends" "Go back to main menu"
+
+    if ($analysisMode -eq "Go back to main menu") { return }
+
+    if ($analysisMode -eq "Overall Statistics & Trends") {
+        # Show aggregate analysis options
+        Invoke-AggregateAnalysis
+        return
+    }
+
+    # Get available backups for individual analysis
+    $backups = Get-Backups
+    if ($backups.Count -eq 0) {
+        gum style --foreground 196 "No backups found for analysis."
+        Read-Host "Press Enter to continue"
+        return
+    }
+
+    # Format backup list with actual file sizes
+    Write-Host "`nFetching backup file sizes..." -ForegroundColor Gray
+    $formattedBackups = $backups | ForEach-Object {
+        $backupPath = $_.DestinationPath
+        $actualSize = "Unknown"
+
+        if (Test-Path $backupPath) {
+            try {
+                $fileInfo = Get-Item $backupPath -ErrorAction SilentlyContinue
+                if ($fileInfo) {
+                    $sizeGB = [math]::Round($fileInfo.Length / 1GB, 2)
+                    $actualSize = "$sizeGB GB"
+                }
+            } catch {
+                $actualSize = "Error"
+            }
+        }
+
+        $typeIndicator = if ($_.BackupType.StartsWith("WinSettings-")) { "[WIN]" } else { "[FILE]" }
+        $ageInDays = [math]::Round(((Get-Date) - [DateTime]$_.Timestamp).TotalDays)
+        "{0,3}: {1} {2} | {3} | {4} | {5} days ago" -f $_.Id, $typeIndicator, $_.BackupSetName, $_.Timestamp, $actualSize, $ageInDays
+    }
+    $formattedBackups = @("Go back") + $formattedBackups
+
+    $selectedBackup = gum choose --height=15 --header "Select Backup to Analyze" $formattedBackups
+
+    if ($selectedBackup -eq "Go back" -or -not $selectedBackup) {
+        return
+    }
+
+    $backupId = [int]($selectedBackup -split ":")[0].Trim()
+    $backup = $backups | Where-Object { $_.Id -eq $backupId }
+
+    # Show backup details
+    Write-Host "`n╔════════════════════════════════════════════════════════════╗" -ForegroundColor Yellow
+    Write-Host "║          ANALYZING BACKUP ID: $backupId" -ForegroundColor Yellow
+    Write-Host "╚════════════════════════════════════════════════════════════╝" -ForegroundColor Yellow
+    Write-Host "Name:        $($backup.BackupSetName)" -ForegroundColor Cyan
+    Write-Host "Type:        $($backup.BackupType)" -ForegroundColor Cyan
+    Write-Host "Date:        $($backup.Timestamp)" -ForegroundColor Cyan
+    Write-Host "Location:    $($backup.DestinationPath)" -ForegroundColor Cyan
+
+    if (Test-Path $backup.DestinationPath) {
+        $fileInfo = Get-Item $backup.DestinationPath
+        $sizeGB = [math]::Round($fileInfo.Length / 1GB, 2)
+        Write-Host "Archive Size: $sizeGB GB" -ForegroundColor Green
+    }
     Write-Host ""
 
     $analysisOptions = @(
-        "📊 Comprehensive Report (Full Analysis)",
-        "📈 Backup Statistics & Trends",
+        "📊 Comprehensive Report",
         "📁 Largest Files",
         "📂 Largest Folders",
         "🔢 Folders with Most Files",
         "🏷️  Category Breakdown",
         "📄 File Type Distribution",
-        "🕒 Backup Trends Over Time",
+        "Select Different Backup",
         "Go back to main menu"
     )
 
-    $choice = gum choose --height=14 --header "Select Analysis Type" $analysisOptions
+    $choice = gum choose --height=12 --header "Analyze Backup ID $backupId" $analysisOptions
 
     switch ($choice) {
-        "📊 Comprehensive Report (Full Analysis)" {
-            Write-Host "`nGenerating comprehensive backup analysis report..." -ForegroundColor Cyan
-            Write-Host "This may take 20-30 seconds depending on backup count..." -ForegroundColor Gray
-            Write-Host ""
-
-            $detailedChoice = gum choose --height=6 --header "Report Detail Level" "Quick Overview" "Full Detailed Analysis" "Cancel"
-
-            if ($detailedChoice -eq "Cancel") { return }
-
-            try {
-                if ($detailedChoice -eq "Full Detailed Analysis") {
-                    Show-BackupAnalysisReport -IncludeDetailed
-                } else {
-                    Show-BackupAnalysisReport
-                }
-            }
-            catch {
-                Write-Host "`nAnalysis failed: $_" -ForegroundColor Red
-                gum style --foreground 196 "Analysis failed. Check that backups exist and are accessible."
-            }
-        }
-
-        "📈 Backup Statistics & Trends" {
-            Write-Host "`nGenerating backup statistics..." -ForegroundColor Cyan
+        "📊 Comprehensive Report" {
+            Write-Host "`nGenerating comprehensive report for backup $($backup.BackupSetName)..." -ForegroundColor Cyan
             Write-Host ""
 
             try {
-                Get-BackupStatistics -RecentCount 10
-                Write-Host ""
-                Get-BackupTrends -RecentCount 20
+                Show-BackupAnalysisReport -BackupId $backupId -IncludeDetailed
             }
             catch {
                 Write-Host "`nAnalysis failed: $_" -ForegroundColor Red
+                gum style --foreground 196 "Analysis failed. Check that backup is accessible."
             }
         }
 
         "📁 Largest Files" {
-            $topCount = gum choose --height=8 --header "How many files to show?" "10" "20" "30" "50" "Cancel"
-            if ($topCount -eq "Cancel") { return }
+            $topCount = gum choose --height=8 --header "How many files to show?" "10" "20" "30" "50" "100" "Cancel"
+            if ($topCount -eq "Cancel") { Invoke-AnalyzeOperation; return }
 
-            Write-Host "`nFinding largest files (Top $topCount)..." -ForegroundColor Cyan
-            Write-Host "This will analyze recent 5 backups..." -ForegroundColor Gray
+            Write-Host "`nFinding largest files in backup $($backup.BackupSetName)..." -ForegroundColor Cyan
             Write-Host ""
 
             try {
-                Get-LargestFiles -Top ([int]$topCount)
+                Get-LargestFiles -Top ([int]$topCount) -BackupId $backupId
             }
             catch {
                 Write-Host "`nAnalysis failed: $_" -ForegroundColor Red
@@ -596,15 +633,14 @@ function Invoke-AnalyzeOperation {
         }
 
         "📂 Largest Folders" {
-            $topCount = gum choose --height=8 --header "How many folders to show?" "10" "20" "30" "50" "Cancel"
-            if ($topCount -eq "Cancel") { return }
+            $topCount = gum choose --height=8 --header "How many folders to show?" "10" "20" "30" "50" "100" "Cancel"
+            if ($topCount -eq "Cancel") { Invoke-AnalyzeOperation; return }
 
-            Write-Host "`nFinding largest folders (Top $topCount)..." -ForegroundColor Cyan
-            Write-Host "This will analyze recent 5 backups..." -ForegroundColor Gray
+            Write-Host "`nFinding largest folders in backup $($backup.BackupSetName)..." -ForegroundColor Cyan
             Write-Host ""
 
             try {
-                Get-LargestFolders -Top ([int]$topCount)
+                Get-LargestFolders -Top ([int]$topCount) -BackupId $backupId
             }
             catch {
                 Write-Host "`nAnalysis failed: $_" -ForegroundColor Red
@@ -612,15 +648,14 @@ function Invoke-AnalyzeOperation {
         }
 
         "🔢 Folders with Most Files" {
-            $topCount = gum choose --height=8 --header "How many folders to show?" "10" "20" "30" "50" "Cancel"
-            if ($topCount -eq "Cancel") { return }
+            $topCount = gum choose --height=8 --header "How many folders to show?" "10" "20" "30" "50" "100" "Cancel"
+            if ($topCount -eq "Cancel") { Invoke-AnalyzeOperation; return }
 
-            Write-Host "`nFinding folders with most files (Top $topCount)..." -ForegroundColor Cyan
-            Write-Host "This will analyze recent 5 backups..." -ForegroundColor Gray
+            Write-Host "`nFinding folders with most files in backup $($backup.BackupSetName)..." -ForegroundColor Cyan
             Write-Host ""
 
             try {
-                Get-FolderFileCount -Top ([int]$topCount)
+                Get-FolderFileCount -Top ([int]$topCount) -BackupId $backupId
             }
             catch {
                 Write-Host "`nAnalysis failed: $_" -ForegroundColor Red
@@ -628,12 +663,11 @@ function Invoke-AnalyzeOperation {
         }
 
         "🏷️  Category Breakdown" {
-            Write-Host "`nAnalyzing storage by category..." -ForegroundColor Cyan
-            Write-Host "This will analyze recent 5 backups..." -ForegroundColor Gray
+            Write-Host "`nAnalyzing storage by category in backup $($backup.BackupSetName)..." -ForegroundColor Cyan
             Write-Host ""
 
             try {
-                Get-CategoryBreakdown
+                Get-CategoryBreakdown -BackupId $backupId
             }
             catch {
                 Write-Host "`nAnalysis failed: $_" -ForegroundColor Red
@@ -641,15 +675,62 @@ function Invoke-AnalyzeOperation {
         }
 
         "📄 File Type Distribution" {
-            $topCount = gum choose --height=8 --header "How many file types to show?" "10" "20" "30" "50" "Cancel"
-            if ($topCount -eq "Cancel") { return }
+            $topCount = gum choose --height=8 --header "How many file types to show?" "10" "20" "30" "50" "100" "Cancel"
+            if ($topCount -eq "Cancel") { Invoke-AnalyzeOperation; return }
 
-            Write-Host "`nAnalyzing file type distribution (Top $topCount)..." -ForegroundColor Cyan
-            Write-Host "This will analyze recent 5 backups..." -ForegroundColor Gray
+            Write-Host "`nAnalyzing file type distribution in backup $($backup.BackupSetName)..." -ForegroundColor Cyan
             Write-Host ""
 
             try {
-                Get-FileTypeDistribution -Top ([int]$topCount)
+                Get-FileTypeDistribution -Top ([int]$topCount) -BackupId $backupId
+            }
+            catch {
+                Write-Host "`nAnalysis failed: $_" -ForegroundColor Red
+            }
+        }
+
+        "Select Different Backup" {
+            Invoke-AnalyzeOperation
+            return
+        }
+
+        "Go back to main menu" {
+            return
+        }
+
+        default {
+            return
+        }
+    }
+
+    Write-Host ""
+    gum confirm "Continue analyzing this backup?"
+    if ($LASTEXITCODE -eq 0) {
+        Invoke-AnalyzeOperation
+    }
+}
+
+function Invoke-AggregateAnalysis {
+    Write-Host "`n=== AGGREGATE ANALYSIS (Multiple Backups) ===" -ForegroundColor Yellow
+    Write-Host ""
+
+    $analysisOptions = @(
+        "📈 Backup Statistics & Trends",
+        "🕒 Backup Trends Over Time",
+        "Go back"
+    )
+
+    $choice = gum choose --height=8 --header "Select Aggregate Analysis" $analysisOptions
+
+    switch ($choice) {
+        "📈 Backup Statistics & Trends" {
+            Write-Host "`nGenerating aggregate statistics..." -ForegroundColor Cyan
+            Write-Host ""
+
+            try {
+                Get-BackupStatistics -RecentCount 10
+                Write-Host ""
+                Get-BackupTrends -RecentCount 20
             }
             catch {
                 Write-Host "`nAnalysis failed: $_" -ForegroundColor Red
@@ -673,20 +754,13 @@ function Invoke-AnalyzeOperation {
             }
         }
 
-        "Go back to main menu" {
-            return
-        }
-
-        default {
+        "Go back" {
             return
         }
     }
 
     Write-Host ""
-    gum confirm "Return to analysis menu?"
-    if ($LASTEXITCODE -eq 0) {
-        Invoke-AnalyzeOperation
-    }
+    gum confirm "Return to main menu?"
 }
 
 function Delete-Backups {

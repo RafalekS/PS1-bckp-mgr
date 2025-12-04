@@ -253,7 +253,7 @@ function Get-BackupStatistics {
 function Get-LargestFiles {
     <#
     .SYNOPSIS
-        Find the largest files across all backups
+        Find the largest files in a backup or across backups
     #>
     param (
         [int]$Top = 20,
@@ -264,7 +264,12 @@ function Get-LargestFiles {
     Write-Host ""
 
     $backups = if ($BackupId -gt 0) {
-        Get-AllBackups | Where-Object { $_.Id -eq $BackupId }
+        $backup = Get-AllBackups | Where-Object { $_.Id -eq $BackupId }
+        if ($backup) {
+            @($backup)  # Ensure it's an array
+        } else {
+            @()
+        }
     } else {
         Get-AllBackups | Select-Object -First 5  # Analyze recent 5 backups by default
     }
@@ -274,7 +279,12 @@ function Get-LargestFiles {
         return
     }
 
-    Write-Host "Analyzing $($backups.Count) backup(s)..." -ForegroundColor Gray
+    if ($BackupId -gt 0) {
+        Write-Host "Analyzing backup: $($backups[0].Name)" -ForegroundColor Cyan
+    } else {
+        Write-Host "Analyzing $($backups.Count) recent backups..." -ForegroundColor Gray
+    }
+    Write-Host ""
 
     $allFiles = @()
 
@@ -284,16 +294,16 @@ function Get-LargestFiles {
         $manifest = Get-BackupManifest -BackupPath $backup.DestinationPath
         if ($manifest) {
             $files = Get-ManifestFileData -Manifest $manifest
-            $files | ForEach-Object {
-                $_ | Add-Member -NotePropertyName BackupName -NotePropertyValue $backup.Name -PassThru
-                $_ | Add-Member -NotePropertyName BackupId -NotePropertyValue $backup.Id
+            foreach ($file in $files) {
+                $file | Add-Member -NotePropertyName BackupName -NotePropertyValue $backup.Name -Force
+                $file | Add-Member -NotePropertyName BackupId -NotePropertyValue $backup.Id -Force
             }
             $allFiles += $files
         }
     }
 
     if ($allFiles.Count -eq 0) {
-        Write-Host "No files found in manifests." -ForegroundColor Yellow
+        Write-Host "No files found in manifest(s)." -ForegroundColor Yellow
         return
     }
 
@@ -304,18 +314,17 @@ function Get-LargestFiles {
                                   @{L='File Name';E={$_.FileName}},
                                   @{L='Extension';E={$_.FileExtension}},
                                   @{L='Category';E={$_.BackupItem}},
-                                  @{L='Directory';E={$_.Directory -replace '.*\\([^\\]+\\[^\\]+)$', '...\$1'}},
-                                  @{L='Backup';E={$_.BackupName}} -AutoSize -Wrap
+                                  @{L='Path';E={$_.Directory}} -AutoSize -Wrap
 
     $totalSize = ($largestFiles | Measure-Object -Property SizeBytes -Sum).Sum
-    Write-Host "`nTotal size of top $Top files: " -NoNewline
+    Write-Host "`nTotal: $($largestFiles.Count) files, " -NoNewline -ForegroundColor Gray
     Write-Host ("{0:N2} GB" -f ($totalSize / 1GB)) -ForegroundColor Green
 }
 
 function Get-LargestFolders {
     <#
     .SYNOPSIS
-        Find the largest folders/directories across backups
+        Find the largest folders/directories in a backup
     #>
     param (
         [int]$Top = 20,
@@ -326,7 +335,8 @@ function Get-LargestFolders {
     Write-Host ""
 
     $backups = if ($BackupId -gt 0) {
-        Get-AllBackups | Where-Object { $_.Id -eq $BackupId }
+        $backup = Get-AllBackups | Where-Object { $_.Id -eq $BackupId }
+        if ($backup) { @($backup) } else { @() }
     } else {
         Get-AllBackups | Select-Object -First 5
     }
@@ -336,7 +346,12 @@ function Get-LargestFolders {
         return
     }
 
-    Write-Host "Analyzing $($backups.Count) backup(s)..." -ForegroundColor Gray
+    if ($BackupId -gt 0) {
+        Write-Host "Analyzing backup: $($backups[0].Name)" -ForegroundColor Cyan
+    } else {
+        Write-Host "Analyzing $($backups.Count) recent backups..." -ForegroundColor Gray
+    }
+    Write-Host ""
 
     $folderStats = @{}
 
@@ -412,7 +427,8 @@ function Get-FolderFileCount {
     Write-Host ""
 
     $backups = if ($BackupId -gt 0) {
-        Get-AllBackups | Where-Object { $_.Id -eq $BackupId }
+        $backup = Get-AllBackups | Where-Object { $_.Id -eq $BackupId }
+        if ($backup) { @($backup) } else { @() }
     } else {
         Get-AllBackups | Select-Object -First 5
     }
@@ -422,7 +438,12 @@ function Get-FolderFileCount {
         return
     }
 
-    Write-Host "Analyzing $($backups.Count) backup(s)..." -ForegroundColor Gray
+    if ($BackupId -gt 0) {
+        Write-Host "Analyzing backup: $($backups[0].Name)" -ForegroundColor Cyan
+    } else {
+        Write-Host "Analyzing $($backups.Count) recent backups..." -ForegroundColor Gray
+    }
+    Write-Host ""
 
     $folderStats = @{}
 
@@ -485,7 +506,8 @@ function Get-CategoryBreakdown {
     Write-Host ""
 
     $backups = if ($BackupId -gt 0) {
-        Get-AllBackups | Where-Object { $_.Id -eq $BackupId }
+        $backup = Get-AllBackups | Where-Object { $_.Id -eq $BackupId }
+        if ($backup) { @($backup) } else { @() }
     } else {
         Get-AllBackups | Select-Object -First 5
     }
@@ -495,7 +517,12 @@ function Get-CategoryBreakdown {
         return
     }
 
-    Write-Host "Analyzing $($backups.Count) backup(s)..." -ForegroundColor Gray
+    if ($BackupId -gt 0) {
+        Write-Host "Analyzing backup: $($backups[0].Name)" -ForegroundColor Cyan
+    } else {
+        Write-Host "Analyzing $($backups.Count) recent backups..." -ForegroundColor Gray
+    }
+    Write-Host ""
 
     $categoryStats = @{}
 
@@ -553,7 +580,7 @@ function Get-CategoryBreakdown {
 function Get-FileTypeDistribution {
     <#
     .SYNOPSIS
-        Analyze file type distribution across backups
+        Analyze file type distribution in a backup
     #>
     param (
         [int]$Top = 20,
@@ -564,7 +591,8 @@ function Get-FileTypeDistribution {
     Write-Host ""
 
     $backups = if ($BackupId -gt 0) {
-        Get-AllBackups | Where-Object { $_.Id -eq $BackupId }
+        $backup = Get-AllBackups | Where-Object { $_.Id -eq $BackupId }
+        if ($backup) { @($backup) } else { @() }
     } else {
         Get-AllBackups | Select-Object -First 5
     }
@@ -574,7 +602,12 @@ function Get-FileTypeDistribution {
         return
     }
 
-    Write-Host "Analyzing $($backups.Count) backup(s)..." -ForegroundColor Gray
+    if ($BackupId -gt 0) {
+        Write-Host "Analyzing backup: $($backups[0].Name)" -ForegroundColor Cyan
+    } else {
+        Write-Host "Analyzing $($backups.Count) recent backups..." -ForegroundColor Gray
+    }
+    Write-Host ""
 
     $extensionStats = @{}
 
