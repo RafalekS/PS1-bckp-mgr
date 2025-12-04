@@ -99,6 +99,86 @@ function Get-AllBackups {
 
 #region Manifest Functions
 
+function Get-ZipFileList {
+    <#
+    .SYNOPSIS
+        Get ALL files from a ZIP archive with their sizes
+    .DESCRIPTION
+        Reads actual ZIP contents using .NET ZipArchive - NOT the manifest
+    #>
+    param (
+        [Parameter(Mandatory=$true)]
+        [string]$BackupPath
+    )
+
+    # Handle both directory paths and .zip file paths
+    if ($BackupPath -like "*.zip") {
+        $zipPath = $BackupPath
+    }
+    else {
+        $backupName = Split-Path $BackupPath -Leaf
+        $zipPath = Join-Path $BackupPath "$backupName.zip"
+    }
+
+    if (-not (Test-Path $zipPath)) {
+        Write-Warning "Backup ZIP not found: $zipPath"
+        return @()
+    }
+
+    try {
+        Write-Verbose "Reading ZIP contents from: $zipPath"
+        Add-Type -AssemblyName System.IO.Compression.FileSystem
+
+        $zip = [System.IO.Compression.ZipFile]::OpenRead($zipPath)
+        $files = @()
+
+        foreach ($entry in $zip.Entries) {
+            # Skip directories (they have Length 0 and end with /)
+            if ($entry.FullName.EndsWith('/') -or $entry.Length -eq 0) {
+                continue
+            }
+
+            # Extract file info from path
+            # Path format: C:/temp/Backup/BACKUP_NAME/Files/Category/filename
+            $fullPath = $entry.FullName
+            $parts = $fullPath -split '/'
+
+            # Try to determine category from path
+            # Path format: C:/temp/Backup/BACKUP_NAME/Files/Category/...
+            $category = "Unknown"
+            $filesIndex = [array]::IndexOf($parts, 'Files')
+            if ($filesIndex -ge 0 -and $filesIndex + 1 -lt $parts.Length) {
+                $category = $parts[$filesIndex + 1]
+            } elseif ($parts -contains 'WindowsSettings') {
+                $category = "WindowsSettings"
+            }
+
+            $fileName = $parts[-1]
+            $extension = [System.IO.Path]::GetExtension($fileName).ToLower()
+            $directory = ($parts[0..($parts.Length-2)] -join '\').Replace('/', '\')
+
+            $files += [PSCustomObject]@{
+                FileName = $fileName
+                FileExtension = $extension
+                FullPath = $fullPath
+                Directory = $directory
+                SizeBytes = [long]$entry.Length
+                CompressedSize = [long]$entry.CompressedLength
+                LastModified = $entry.LastWriteTime
+                Category = $category
+            }
+        }
+
+        $zip.Dispose()
+        Write-Verbose "Read $($files.Count) files from ZIP"
+        return $files
+    }
+    catch {
+        Write-Error "Failed to read ZIP contents: $_"
+        return @()
+    }
+}
+
 function Get-BackupManifest {
     param (
         [Parameter(Mandatory=$true)]
@@ -289,21 +369,23 @@ function Get-LargestFiles {
     $allFiles = @()
 
     foreach ($backup in $backups) {
-        Write-Host "  Reading manifest from: $($backup.Name)..." -ForegroundColor Gray
+        Write-Host "  Reading ZIP contents from: $($backup.Name)..." -ForegroundColor Gray
 
-        $manifest = Get-BackupManifest -BackupPath $backup.DestinationPath
-        if ($manifest) {
-            $files = Get-ManifestFileData -Manifest $manifest
+        $files = Get-ZipFileList -BackupPath $backup.DestinationPath
+        if ($files.Count -gt 0) {
             foreach ($file in $files) {
                 $file | Add-Member -NotePropertyName BackupName -NotePropertyValue $backup.Name -Force
                 $file | Add-Member -NotePropertyName BackupId -NotePropertyValue $backup.Id -Force
+                # Rename Category to BackupItem for consistency
+                $file | Add-Member -NotePropertyName BackupItem -NotePropertyValue $file.Category -Force
             }
             $allFiles += $files
+            Write-Host "    Found $($files.Count) files" -ForegroundColor Gray
         }
     }
 
     if ($allFiles.Count -eq 0) {
-        Write-Host "No files found in manifest(s)." -ForegroundColor Yellow
+        Write-Host "No files found in ZIP archive(s)." -ForegroundColor Yellow
         return
     }
 
@@ -527,14 +609,14 @@ function Get-CategoryBreakdown {
     $categoryStats = @{}
 
     foreach ($backup in $backups) {
-        Write-Host "  Reading manifest from: $($backup.Name)..." -ForegroundColor Gray
+        Write-Host "  Reading ZIP contents from: $($backup.Name)..." -ForegroundColor Gray
 
-        $manifest = Get-BackupManifest -BackupPath $backup.DestinationPath
-        if ($manifest) {
-            $files = Get-ManifestFileData -Manifest $manifest
+        $files = Get-ZipFileList -BackupPath $backup.DestinationPath
+        if ($files.Count -gt 0) {
+            Write-Host "    Found $($files.Count) files" -ForegroundColor Gray
 
             foreach ($file in $files) {
-                $category = $file.BackupItem
+                $category = $file.Category
 
                 if (-not $categoryStats.ContainsKey($category)) {
                     $categoryStats[$category] = @{
@@ -768,23 +850,23 @@ function Show-BackupAnalysisReport {
         }
         Write-Host ""
 
-        # Get manifest stats
-        Write-Host "Reading backup manifest..." -ForegroundColor Gray
-        $manifest = Get-BackupManifest -BackupPath $backup.DestinationPath
+        # Get ACTUAL file stats from ZIP
+        Write-Host "Reading actual ZIP contents..." -ForegroundColor Gray
+        $files = Get-ZipFileList -BackupPath $backup.DestinationPath
 
-        if ($manifest) {
-            $files = Get-ManifestFileData -Manifest $manifest
+        if ($files.Count -gt 0) {
             $totalFiles = $files.Count
             $totalSize = ($files | Measure-Object -Property SizeBytes -Sum).Sum
             $totalSizeGB = [math]::Round($totalSize / 1GB, 2)
+            $totalSizeMB = [math]::Round($totalSize / 1MB, 2)
 
             Write-Host "Total Files:  " -NoNewline -ForegroundColor White
             Write-Host "$totalFiles files" -ForegroundColor Green
             Write-Host "Total Size:   " -NoNewline -ForegroundColor White
-            Write-Host "$totalSizeGB GB (uncompressed)" -ForegroundColor Green
+            Write-Host "$totalSizeGB GB ($totalSizeMB MB uncompressed)" -ForegroundColor Green
 
             # Calculate categories
-            $categories = $files | Group-Object BackupItem | Measure-Object
+            $categories = $files | Group-Object Category | Measure-Object
             Write-Host "Categories:   " -NoNewline -ForegroundColor White
             Write-Host "$($categories.Count) categories" -ForegroundColor Green
         }
