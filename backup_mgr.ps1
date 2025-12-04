@@ -1,6 +1,9 @@
 # Load SQLite assembly
 Add-Type -Path "db\System.Data.SQLite.dll"
 
+# Load BackupAnalyzer module
+. "$PSScriptRoot\BackupAnalyzer.ps1"
+
 function Test-DatabaseAccess {
     $databasePath = Resolve-Path ".\db\backup_history.db"
     Write-Host "Testing database access: $databasePath"
@@ -24,7 +27,7 @@ function Test-DatabaseAccess {
 Test-DatabaseAccess
 
 function Show-MainMenu {
-    gum choose --height=13 --header "Main Menu" "Perform Backup" "Restore Backup" "Delete Backups" "Edit config" "Manage backup config" "Quit"
+    gum choose --height=14 --header "Main Menu" "Perform Backup" "Restore Backup" "Analyze Backups" "Delete Backups" "Edit config" "Manage backup config" "Quit"
 }
 
 function Invoke-BackupOperation {
@@ -513,6 +516,179 @@ function Invoke-RestoreOperation {
     if (-not $?) { exit }
 }
 
+function Invoke-AnalyzeOperation {
+    Write-Host "`n╔════════════════════════════════════════════════════════════╗" -ForegroundColor Cyan
+    Write-Host "║              BACKUP ANALYSIS & STATISTICS                 ║" -ForegroundColor Cyan
+    Write-Host "╚════════════════════════════════════════════════════════════╝" -ForegroundColor Cyan
+    Write-Host ""
+    Write-Host "Analyze your backup history and get insights into:" -ForegroundColor Gray
+    Write-Host "• Overall statistics and trends" -ForegroundColor Gray
+    Write-Host "• Largest files and folders" -ForegroundColor Gray
+    Write-Host "• Storage usage by category and file type" -ForegroundColor Gray
+    Write-Host "• Backup size trends over time" -ForegroundColor Gray
+    Write-Host ""
+
+    $analysisOptions = @(
+        "📊 Comprehensive Report (Full Analysis)",
+        "📈 Backup Statistics & Trends",
+        "📁 Largest Files",
+        "📂 Largest Folders",
+        "🔢 Folders with Most Files",
+        "🏷️  Category Breakdown",
+        "📄 File Type Distribution",
+        "🕒 Backup Trends Over Time",
+        "Go back to main menu"
+    )
+
+    $choice = gum choose --height=14 --header "Select Analysis Type" $analysisOptions
+
+    switch ($choice) {
+        "📊 Comprehensive Report (Full Analysis)" {
+            Write-Host "`nGenerating comprehensive backup analysis report..." -ForegroundColor Cyan
+            Write-Host "This may take 20-30 seconds depending on backup count..." -ForegroundColor Gray
+            Write-Host ""
+
+            $detailedChoice = gum choose --height=6 --header "Report Detail Level" "Quick Overview" "Full Detailed Analysis" "Cancel"
+
+            if ($detailedChoice -eq "Cancel") { return }
+
+            try {
+                if ($detailedChoice -eq "Full Detailed Analysis") {
+                    Show-BackupAnalysisReport -IncludeDetailed
+                } else {
+                    Show-BackupAnalysisReport
+                }
+            }
+            catch {
+                Write-Host "`nAnalysis failed: $_" -ForegroundColor Red
+                gum style --foreground 196 "Analysis failed. Check that backups exist and are accessible."
+            }
+        }
+
+        "📈 Backup Statistics & Trends" {
+            Write-Host "`nGenerating backup statistics..." -ForegroundColor Cyan
+            Write-Host ""
+
+            try {
+                Get-BackupStatistics -RecentCount 10
+                Write-Host ""
+                Get-BackupTrends -RecentCount 20
+            }
+            catch {
+                Write-Host "`nAnalysis failed: $_" -ForegroundColor Red
+            }
+        }
+
+        "📁 Largest Files" {
+            $topCount = gum choose --height=8 --header "How many files to show?" "10" "20" "30" "50" "Cancel"
+            if ($topCount -eq "Cancel") { return }
+
+            Write-Host "`nFinding largest files (Top $topCount)..." -ForegroundColor Cyan
+            Write-Host "This will analyze recent 5 backups..." -ForegroundColor Gray
+            Write-Host ""
+
+            try {
+                Get-LargestFiles -Top ([int]$topCount)
+            }
+            catch {
+                Write-Host "`nAnalysis failed: $_" -ForegroundColor Red
+            }
+        }
+
+        "📂 Largest Folders" {
+            $topCount = gum choose --height=8 --header "How many folders to show?" "10" "20" "30" "50" "Cancel"
+            if ($topCount -eq "Cancel") { return }
+
+            Write-Host "`nFinding largest folders (Top $topCount)..." -ForegroundColor Cyan
+            Write-Host "This will analyze recent 5 backups..." -ForegroundColor Gray
+            Write-Host ""
+
+            try {
+                Get-LargestFolders -Top ([int]$topCount)
+            }
+            catch {
+                Write-Host "`nAnalysis failed: $_" -ForegroundColor Red
+            }
+        }
+
+        "🔢 Folders with Most Files" {
+            $topCount = gum choose --height=8 --header "How many folders to show?" "10" "20" "30" "50" "Cancel"
+            if ($topCount -eq "Cancel") { return }
+
+            Write-Host "`nFinding folders with most files (Top $topCount)..." -ForegroundColor Cyan
+            Write-Host "This will analyze recent 5 backups..." -ForegroundColor Gray
+            Write-Host ""
+
+            try {
+                Get-FolderFileCount -Top ([int]$topCount)
+            }
+            catch {
+                Write-Host "`nAnalysis failed: $_" -ForegroundColor Red
+            }
+        }
+
+        "🏷️  Category Breakdown" {
+            Write-Host "`nAnalyzing storage by category..." -ForegroundColor Cyan
+            Write-Host "This will analyze recent 5 backups..." -ForegroundColor Gray
+            Write-Host ""
+
+            try {
+                Get-CategoryBreakdown
+            }
+            catch {
+                Write-Host "`nAnalysis failed: $_" -ForegroundColor Red
+            }
+        }
+
+        "📄 File Type Distribution" {
+            $topCount = gum choose --height=8 --header "How many file types to show?" "10" "20" "30" "50" "Cancel"
+            if ($topCount -eq "Cancel") { return }
+
+            Write-Host "`nAnalyzing file type distribution (Top $topCount)..." -ForegroundColor Cyan
+            Write-Host "This will analyze recent 5 backups..." -ForegroundColor Gray
+            Write-Host ""
+
+            try {
+                Get-FileTypeDistribution -Top ([int]$topCount)
+            }
+            catch {
+                Write-Host "`nAnalysis failed: $_" -ForegroundColor Red
+            }
+        }
+
+        "🕒 Backup Trends Over Time" {
+            $countChoice = gum choose --height=8 --header "How many recent backups to analyze?" "10" "20" "30" "50" "All backups" "Cancel"
+            if ($countChoice -eq "Cancel") { return }
+
+            $count = if ($countChoice -eq "All backups") { 0 } else { [int]$countChoice }
+
+            Write-Host "`nAnalyzing backup trends..." -ForegroundColor Cyan
+            Write-Host ""
+
+            try {
+                Get-BackupTrends -RecentCount $count
+            }
+            catch {
+                Write-Host "`nAnalysis failed: $_" -ForegroundColor Red
+            }
+        }
+
+        "Go back to main menu" {
+            return
+        }
+
+        default {
+            return
+        }
+    }
+
+    Write-Host ""
+    gum confirm "Return to analysis menu?"
+    if ($LASTEXITCODE -eq 0) {
+        Invoke-AnalyzeOperation
+    }
+}
+
 function Delete-Backups {
     Write-Host "Entering Delete-Backups function"
     $backups = Get-Backups
@@ -662,12 +838,13 @@ function Show-Banner {
     Write-Host @"
 
 ╔══════════════════════════════════════════════════════════════╗
-║                🔧 BACKUP MANAGER v4.0 🔧                     ║
+║                🔧 BACKUP MANAGER v4.5 🔧                     ║
 ║                                                              ║
 ║  File Backups:     Full | Games | Dev                        ║
 ║  Windows Settings: Minimal | Essential | Full                ║
 ║  Destinations:     Local | HomeNet | SSH                     ║
-║  🆕 Restore:       Complete | Selective | Granular           ║
+║  🆕 Analyze:       Statistics | Trends | Reports             ║
+║  Restore:          Complete | Selective | Granular           ║
 ╚══════════════════════════════════════════════════════════════╝
 
 "@ -ForegroundColor Cyan
@@ -682,12 +859,13 @@ while ($true) {
     switch ($choice) {
         "Perform Backup" { Invoke-BackupOperation }
         "Restore Backup" { Invoke-RestoreOperation }
+        "Analyze Backups" { Invoke-AnalyzeOperation }
         "Delete Backups" { Delete-Backups }
         "Edit config"    { Config-Edit }
         "Manage backup config" { Start-ConfigManager }
-        "Quit" { 
+        "Quit" {
             Write-Host "Thank you for using Backup Manager!" -ForegroundColor Green
-            exit 
+            exit
         }
     }
 }
