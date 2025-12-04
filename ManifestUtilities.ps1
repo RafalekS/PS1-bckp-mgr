@@ -111,6 +111,68 @@ function Add-FileToManifest {
     }
 }
 
+function Add-FolderFilesToManifest {
+    <#
+    .SYNOPSIS
+        Recursively add all files from a folder to the manifest
+    .DESCRIPTION
+        Enumerates all files in a source folder and adds each to the manifest individually.
+        This ensures the manifest tracks ALL files, not just the top-level folder.
+    #>
+    param (
+        [Parameter(Mandatory=$true)]
+        [string]$SourcePath,
+
+        [Parameter(Mandatory=$true)]
+        [string]$DestinationFolder,
+
+        [Parameter(Mandatory=$true)]
+        [string]$BackupItem,
+
+        [Parameter(Mandatory=$true)]
+        [string]$ItemName
+    )
+
+    if (-not (Test-Path $SourcePath -PathType Container)) {
+        if (Get-Command Write-Log -ErrorAction SilentlyContinue) {
+            Write-Log "Cannot add folder files to manifest - not a folder: $SourcePath" -Level "WARNING"
+        }
+        return
+    }
+
+    try {
+        # Get all files recursively
+        $allFiles = Get-ChildItem -Path $SourcePath -Recurse -File -Force -ErrorAction SilentlyContinue
+
+        if (Get-Command Write-Log -ErrorAction SilentlyContinue) {
+            Write-Log "Adding $($allFiles.Count) files from $SourcePath to manifest" -Level "DEBUG"
+        }
+
+        foreach ($file in $allFiles) {
+            try {
+                # Calculate relative path from source folder
+                $relativePath = $file.FullName.Substring($SourcePath.Length).TrimStart('\', '/')
+
+                # Build archive path: DestinationFolder/ItemName/RelativePath
+                $archivePath = "$($DestinationFolder.Replace('\', '/'))/$ItemName/$($relativePath.Replace('\', '/'))"
+
+                # Add individual file to manifest
+                Add-FileToManifest -OriginalPath $file.FullName -ArchivePath $archivePath -BackupItem $BackupItem -FileType "file"
+            }
+            catch {
+                if (Get-Command Write-Log -ErrorAction SilentlyContinue) {
+                    Write-Log "Failed to add file to manifest: $($file.FullName) - $_" -Level "WARNING"
+                }
+            }
+        }
+    }
+    catch {
+        if (Get-Command Write-Log -ErrorAction SilentlyContinue) {
+            Write-Log "Failed to enumerate folder for manifest: $SourcePath - $_" -Level "ERROR"
+        }
+    }
+}
+
 function Add-WindowsSettingsToManifest {
     param (
         [string]$ItemId,

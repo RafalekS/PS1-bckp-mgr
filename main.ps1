@@ -513,9 +513,16 @@ function Process-FileBackupItem {
             $expandedPath = $ExecutionContext.InvokeCommand.ExpandString($path)
             if (Test-Path $expandedPath) {
                 $itemName = Get-SmartBackupFileName -SourcePath $expandedPath
-                $archivePath = "$($destinationFolder.Replace('\', '/'))/$itemName"
-                $fileType = if (Test-Path $expandedPath -PathType Container) { "folder" } else { "file" }
-                Add-FileToManifest -OriginalPath $expandedPath -ArchivePath $archivePath -BackupItem $Item -FileType $fileType
+
+                if (Test-Path $expandedPath -PathType Container) {
+                    # For folders: Add ALL files recursively to manifest
+                    Write-Log "Adding folder contents to manifest: $expandedPath" -Level "DEBUG"
+                    Add-FolderFilesToManifest -SourcePath $expandedPath -DestinationFolder $destinationFolder -BackupItem $Item -ItemName $itemName
+                } else {
+                    # For individual files: Add single file to manifest
+                    $archivePath = "$($destinationFolder.Replace('\', '/'))/$itemName"
+                    Add-FileToManifest -OriginalPath $expandedPath -ArchivePath $archivePath -BackupItem $Item -FileType "file"
+                }
             }
         }
 
@@ -540,9 +547,15 @@ function Process-FileBackupItem {
                     Write-Log "Copied $expandedPath to $destinationFolder as $itemName" -Level "INFO"
 
                     # Add to manifest
-                    $archivePath = "$($destinationFolder.Replace('\', '/'))/$itemName"
-                    $fileType = if (Test-Path $expandedPath -PathType Container) { "folder" } else { "file" }
-                    Add-FileToManifest -OriginalPath $expandedPath -ArchivePath $archivePath -BackupItem $Item -FileType $fileType
+                    if (Test-Path $expandedPath -PathType Container) {
+                        # For folders: Add ALL files recursively to manifest
+                        Write-Log "Adding folder contents to manifest: $expandedPath" -Level "DEBUG"
+                        Add-FolderFilesToManifest -SourcePath $expandedPath -DestinationFolder $destinationFolder -BackupItem $Item -ItemName $itemName
+                    } else {
+                        # For individual files: Add single file to manifest
+                        $archivePath = "$($destinationFolder.Replace('\', '/'))/$itemName"
+                        Add-FileToManifest -OriginalPath $expandedPath -ArchivePath $archivePath -BackupItem $Item -FileType "file"
+                    }
                 } catch {
                     Handle-Error -ErrorRecord $_ -Operation "Copy-File-$expandedPath"
                 }
