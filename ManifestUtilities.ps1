@@ -73,7 +73,7 @@ function Add-FileToManifest {
         checksum = ""
     }
     
-    # Add file size and modification date if it's a file
+    # Add file size and modification date
     if ($FileType -eq "file" -and (Test-Path $OriginalPath -PathType Leaf)) {
         try {
             $fileInfo = Get-Item $OriginalPath -Force -ErrorAction SilentlyContinue
@@ -87,6 +87,26 @@ function Add-FileToManifest {
                 Write-Log "Could not get file info for manifest: $OriginalPath" -Level "WARNING"
             } else {
                 Write-Warning "Could not get file info for manifest: $OriginalPath"
+            }
+        }
+    }
+    elseif ($FileType -eq "folder" -and (Test-Path $OriginalPath -PathType Container)) {
+        # For folders: Calculate TOTAL size of all contents
+        try {
+            $files = Get-ChildItem -Path $OriginalPath -Recurse -File -Force -ErrorAction SilentlyContinue
+            $folderSize = ($files | Measure-Object -Property Length -Sum).Sum
+            $fileCount = ($files | Measure-Object).Count
+
+            $manifestEntry.size_bytes = if ($folderSize) { $folderSize } else { 0 }
+            $manifestEntry.file_count = $fileCount
+
+            if (Get-Command Write-Log -ErrorAction SilentlyContinue) {
+                Write-Log "Folder size: $fileCount files, $folderSize bytes for $OriginalPath" -Level "DEBUG"
+            }
+        }
+        catch {
+            if (Get-Command Write-Log -ErrorAction SilentlyContinue) {
+                Write-Log "Could not calculate folder size for manifest: $OriginalPath - $_" -Level "WARNING"
             }
         }
     }
@@ -108,68 +128,6 @@ function Add-FileToManifest {
     
     if (Get-Command Write-Log -ErrorAction SilentlyContinue) {
         Write-Log "Added to manifest: $normalizedArchivePath -> $normalizedOriginalPath" -Level "DEBUG"
-    }
-}
-
-function Add-FolderFilesToManifest {
-    <#
-    .SYNOPSIS
-        Recursively add all files from a folder to the manifest
-    .DESCRIPTION
-        Enumerates all files in a source folder and adds each to the manifest individually.
-        This ensures the manifest tracks ALL files, not just the top-level folder.
-    #>
-    param (
-        [Parameter(Mandatory=$true)]
-        [string]$SourcePath,
-
-        [Parameter(Mandatory=$true)]
-        [string]$DestinationFolder,
-
-        [Parameter(Mandatory=$true)]
-        [string]$BackupItem,
-
-        [Parameter(Mandatory=$true)]
-        [string]$ItemName
-    )
-
-    if (-not (Test-Path $SourcePath -PathType Container)) {
-        if (Get-Command Write-Log -ErrorAction SilentlyContinue) {
-            Write-Log "Cannot add folder files to manifest - not a folder: $SourcePath" -Level "WARNING"
-        }
-        return
-    }
-
-    try {
-        # Get all files recursively
-        $allFiles = Get-ChildItem -Path $SourcePath -Recurse -File -Force -ErrorAction SilentlyContinue
-
-        if (Get-Command Write-Log -ErrorAction SilentlyContinue) {
-            Write-Log "Adding $($allFiles.Count) files from $SourcePath to manifest" -Level "DEBUG"
-        }
-
-        foreach ($file in $allFiles) {
-            try {
-                # Calculate relative path from source folder
-                $relativePath = $file.FullName.Substring($SourcePath.Length).TrimStart('\', '/')
-
-                # Build archive path: DestinationFolder/ItemName/RelativePath
-                $archivePath = "$($DestinationFolder.Replace('\', '/'))/$ItemName/$($relativePath.Replace('\', '/'))"
-
-                # Add individual file to manifest
-                Add-FileToManifest -OriginalPath $file.FullName -ArchivePath $archivePath -BackupItem $BackupItem -FileType "file"
-            }
-            catch {
-                if (Get-Command Write-Log -ErrorAction SilentlyContinue) {
-                    Write-Log "Failed to add file to manifest: $($file.FullName) - $_" -Level "WARNING"
-                }
-            }
-        }
-    }
-    catch {
-        if (Get-Command Write-Log -ErrorAction SilentlyContinue) {
-            Write-Log "Failed to enumerate folder for manifest: $SourcePath - $_" -Level "ERROR"
-        }
     }
 }
 

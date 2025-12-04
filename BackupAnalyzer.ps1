@@ -361,6 +361,7 @@ function Get-LargestFiles {
 
     if ($BackupId -gt 0) {
         Write-Host "Analyzing backup: $($backups[0].Name)" -ForegroundColor Cyan
+        Write-Host "Location: $($backups[0].DestinationPath)" -ForegroundColor Gray
     } else {
         Write-Host "Analyzing $($backups.Count) recent backups..." -ForegroundColor Gray
     }
@@ -373,11 +374,18 @@ function Get-LargestFiles {
 
         $files = Get-ZipFileList -BackupPath $backup.DestinationPath
         if ($files.Count -gt 0) {
+            # Determine common prefix to strip (e.g., "C:/temp/Backup/FULL_20251204-100203")
+            $backupPrefix = "C:/temp/Backup/$($backup.Name)"
+
             foreach ($file in $files) {
                 $file | Add-Member -NotePropertyName BackupName -NotePropertyValue $backup.Name -Force
                 $file | Add-Member -NotePropertyName BackupId -NotePropertyValue $backup.Id -Force
                 # Rename Category to BackupItem for consistency
                 $file | Add-Member -NotePropertyName BackupItem -NotePropertyValue $file.Category -Force
+
+                # Strip the common prefix from directory path
+                $relativePath = $file.Directory -replace [regex]::Escape($backupPrefix), ''
+                $file | Add-Member -NotePropertyName RelativePath -NotePropertyValue $relativePath -Force
             }
             $allFiles += $files
             Write-Host "    Found $($files.Count) files" -ForegroundColor Gray
@@ -396,7 +404,7 @@ function Get-LargestFiles {
                                   @{L='File Name';E={$_.FileName}},
                                   @{L='Extension';E={$_.FileExtension}},
                                   @{L='Category';E={$_.BackupItem}},
-                                  @{L='Path';E={$_.Directory}} -AutoSize -Wrap
+                                  @{L='Path';E={$_.RelativePath}} -AutoSize -Wrap
 
     $totalSize = ($largestFiles | Measure-Object -Property SizeBytes -Sum).Sum
     Write-Host "`nTotal: $($largestFiles.Count) files, " -NoNewline -ForegroundColor Gray
