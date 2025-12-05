@@ -83,7 +83,7 @@ Compare two backups and show differences (added/removed/modified files)
 ### #44 - Backup Schedule Suggestions
 Analyze backup patterns and suggest optimal schedule based on history
 
-### #45 - GUI Application for Backup Manager
+### #45 - GUI Application for Backup Manager (NEXT - Priority)
 Create graphical user interface to replace CLI backup_mgr.ps1:
 
 **Core Features:**
