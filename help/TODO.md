@@ -83,6 +83,32 @@ Compare two backups and show differences (added/removed/modified files)
 ### #44 - Backup Schedule Suggestions
 Analyze backup patterns and suggest optimal schedule based on history
 
+### #45 - GUI Application for Backup Manager
+Create graphical user interface to replace CLI backup_mgr.ps1:
+
+**Core Features:**
+- Dashboard with backup status, storage usage, last backup date
+- Visual backup configuration (select paths, destinations, schedules)
+- Interactive restore with file browser and preview
+- Real-time backup progress with visual indicators
+- Backup analysis charts (size trends, category breakdowns)
+- Schedule management with calendar view
+- Settings panel for all configuration options
+
+**Technical Considerations:**
+- PowerShell + WPF (native Windows GUI)
+- Or Python + PyQt6/tkinter (cross-platform)
+- Reuse existing PowerShell modules (BackupAnalyzer, etc.)
+- System tray integration for background monitoring
+- Desktop notifications for backup completion/failures
+
+**User Benefits:**
+- No command-line knowledge required
+- Visual file/folder selection
+- Drag-and-drop support
+- Better accessibility for non-technical users
+- Modern, intuitive interface
+
 ---
 
 ## Future Work (Deferred)
