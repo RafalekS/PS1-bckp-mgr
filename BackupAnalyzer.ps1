@@ -439,6 +439,7 @@ function Get-LargestFolders {
 
     if ($BackupId -gt 0) {
         Write-Host "Analyzing backup: $($backups[0].Name)" -ForegroundColor Cyan
+        Write-Host "Location: $($backups[0].DestinationPath)" -ForegroundColor Gray
     } else {
         Write-Host "Analyzing $($backups.Count) recent backups..." -ForegroundColor Gray
     }
@@ -453,24 +454,29 @@ function Get-LargestFolders {
         if ($files.Count -gt 0) {
             Write-Host "    Found $($files.Count) files" -ForegroundColor Gray
 
-            foreach ($file in $files) {
-                $folder = $file.Directory
+            $backupPrefix = "C:/temp/Backup/$($backup.Name)"
 
-                if (-not $folderStats.ContainsKey($folder)) {
-                    $folderStats[$folder] = @{
+            foreach ($file in $files) {
+                # Strip the common prefix from directory path
+                $normalizedDir = $file.Directory -replace '\\', '/'
+                $relativeFolder = $normalizedDir -replace [regex]::Escape($backupPrefix), ''
+                $relativeFolder = $relativeFolder -replace '/', '\'
+
+                if (-not $folderStats.ContainsKey($relativeFolder)) {
+                    $folderStats[$relativeFolder] = @{
                         TotalSize = 0
                         FileCount = 0
                         Categories = @{}
                     }
                 }
 
-                $folderStats[$folder].TotalSize += $file.SizeBytes
-                $folderStats[$folder].FileCount++
+                $folderStats[$relativeFolder].TotalSize += $file.SizeBytes
+                $folderStats[$relativeFolder].FileCount++
 
-                if (-not $folderStats[$folder].Categories.ContainsKey($file.Category)) {
-                    $folderStats[$folder].Categories[$file.Category] = 0
+                if (-not $folderStats[$relativeFolder].Categories.ContainsKey($file.Category)) {
+                    $folderStats[$relativeFolder].Categories[$file.Category] = 0
                 }
-                $folderStats[$folder].Categories[$file.Category]++
+                $folderStats[$relativeFolder].Categories[$file.Category]++
             }
         }
     }
@@ -531,6 +537,7 @@ function Get-FolderFileCount {
 
     if ($BackupId -gt 0) {
         Write-Host "Analyzing backup: $($backups[0].Name)" -ForegroundColor Cyan
+        Write-Host "Location: $($backups[0].DestinationPath)" -ForegroundColor Gray
     } else {
         Write-Host "Analyzing $($backups.Count) recent backups..." -ForegroundColor Gray
     }
@@ -545,18 +552,23 @@ function Get-FolderFileCount {
         if ($files.Count -gt 0) {
             Write-Host "    Found $($files.Count) files" -ForegroundColor Gray
 
-            foreach ($file in $files) {
-                $folder = $file.Directory
+            $backupPrefix = "C:/temp/Backup/$($backup.Name)"
 
-                if (-not $folderStats.ContainsKey($folder)) {
-                    $folderStats[$folder] = @{
+            foreach ($file in $files) {
+                # Strip the common prefix from directory path
+                $normalizedDir = $file.Directory -replace '\\', '/'
+                $relativeFolder = $normalizedDir -replace [regex]::Escape($backupPrefix), ''
+                $relativeFolder = $relativeFolder -replace '/', '\'
+
+                if (-not $folderStats.ContainsKey($relativeFolder)) {
+                    $folderStats[$relativeFolder] = @{
                         TotalSize = 0
                         FileCount = 0
                     }
                 }
 
-                $folderStats[$folder].TotalSize += $file.SizeBytes
-                $folderStats[$folder].FileCount++
+                $folderStats[$relativeFolder].TotalSize += $file.SizeBytes
+                $folderStats[$relativeFolder].FileCount++
             }
         }
     }
