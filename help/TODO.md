@@ -69,7 +69,9 @@ Analyze existing backups from database and display comprehensive statistics:
 - Created BackupAnalyzer.ps1 module with 9 analysis functions
 - Reads actual ZIP contents using .NET ZipArchive (not just manifest)
 - Shows real file counts (60k+ files) instead of broken manifest data (25 files)
-- Fixed manifest population to track all files recursively (Add-FolderFilesToManifest)
+- Fixed manifest to calculate meaningful folder sizes without 60k+ entries bloat
+- Manifest stays lightweight (25 top-level entries) with accurate size_bytes and file_count fields
+- Clean display: Shows backup location once, strips redundant C:/temp/Backup/NAME prefix from all paths
 - See help/BACKUP_ANALYZER.md for complete documentation
 
 ### #41 - Interactive Restore Preview
