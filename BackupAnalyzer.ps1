@@ -374,17 +374,18 @@ function Get-LargestFiles {
 
         $files = Get-ZipFileList -BackupPath $backup.DestinationPath
         if ($files.Count -gt 0) {
-            # Determine common prefix to strip (e.g., "C:/temp/Backup/FULL_20251204-100203")
-            $backupPrefix = "C:/temp/Backup/$($backup.Name)"
-
             foreach ($file in $files) {
                 $file | Add-Member -NotePropertyName BackupName -NotePropertyValue $backup.Name -Force
                 $file | Add-Member -NotePropertyName BackupId -NotePropertyValue $backup.Id -Force
                 # Rename Category to BackupItem for consistency
                 $file | Add-Member -NotePropertyName BackupItem -NotePropertyValue $file.Category -Force
 
-                # Strip the common prefix from directory path
-                $relativePath = $file.Directory -replace [regex]::Escape($backupPrefix), ''
+                # Strip the common prefix from directory path (normalize backslashes first)
+                $normalizedDir = $file.Directory -replace '\\', '/'
+                $backupPrefix = "C:/temp/Backup/$($backup.Name)"
+                $relativePath = $normalizedDir -replace [regex]::Escape($backupPrefix), ''
+                # Convert back to backslashes for display
+                $relativePath = $relativePath -replace '/', '\'
                 $file | Add-Member -NotePropertyName RelativePath -NotePropertyValue $relativePath -Force
             }
             $allFiles += $files
